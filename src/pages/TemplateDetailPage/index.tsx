@@ -35,7 +35,7 @@ interface Step {
     id: string;
     name: string;
     grid: (GridItem | null)[][];
-    sections: any[];
+    sections: Record<string, unknown>[];
     items?: GridItem[];
 }
 
@@ -250,9 +250,11 @@ const TemplateDetailPage = () => {
     };
     
     const isTimeSet = selectedTime.hour !== 0 || selectedTime.minute !== 0 || (selectedTime.hour === 0 && selectedTime.meridiem === '오전');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const formattedTime = isTimeSet
         ? `${selectedTime.meridiem} ${selectedTime.hour === 0 ? 12 : selectedTime.hour}:${selectedTime.minute.toString().padStart(2, "0")}`
         : "없음";
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const formattedChannels = selectedChannels.length > 0 ? selectedChannels.join(", ") : "없음";
     
     const handleSaveNotification = async () => {
@@ -407,11 +409,11 @@ const TemplateDetailPage = () => {
 
                     // stepsList 처리
                     if (templateData.stepsList && Array.isArray(templateData.stepsList)) {
-                        let finalSteps: Step[] = [];
-                        let finalTextItems: TextItem[] = [];
-                        let finalObjectItems: any[] = [];
+                        const finalSteps: Step[] = [];
+                        const finalTextItems: TextItem[] = [];
+                        const finalObjectItems: Record<string, unknown>[] = [];
 
-                        templateData.stepsList.forEach((stepData: any, stepIndex: number) => {
+                        templateData.stepsList.forEach((stepData: Record<string, unknown>, stepIndex: number) => {
                             // 스텝 생성
                             const newStep: Step = {
                                 id: `step${stepIndex + 1}`,
@@ -423,7 +425,7 @@ const TemplateDetailPage = () => {
 
                             // 오브젝트 처리
                             if (stepData.stepObjList && Array.isArray(stepData.stepObjList)) {
-                                stepData.stepObjList.forEach((obj: any, objIndex: number) => {
+                                stepData.stepObjList.forEach((obj: Record<string, unknown>, objIndex: number) => {
                                     const objX = obj.objX || 0;
                                     const objY = obj.objY || 0;
                                     const objNm = obj.objNm || `오브젝트${objIndex}`;
@@ -458,7 +460,7 @@ const TemplateDetailPage = () => {
 
                             // 텍스트 처리
                             if (stepData.stepTextList && Array.isArray(stepData.stepTextList)) {
-                                stepData.stepTextList.forEach((textData: any, textIndex: number) => {
+                                stepData.stepTextList.forEach((textData: Record<string, unknown>, textIndex: number) => {
                                     const textItem: TextItem = {
                                         id: `text_${stepIndex}_${textIndex}`,
                                         content: textData.text || textData.stepTextContent || '',
@@ -751,7 +753,7 @@ const TemplateDetailPage = () => {
                         </div>
 
                         {/* 텍스트 아이템들 (읽기 전용) */}
-                        {textItems.map((item, index) => (
+                        {textItems.map((item, _index) => (
                             <div
                                 key={item.id}
                                 className="absolute select-none text-item-container"
@@ -793,7 +795,7 @@ const TemplateDetailPage = () => {
                         ))}
 
                         {/* 오브젝트 아이템들 (읽기 전용) */}
-                        {objectItems.map((item, index) => (
+                        {objectItems.map((item, _index) => (
                             <div
                                 key={item.id}
                                 className="absolute"

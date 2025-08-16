@@ -1,7 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-constant-condition */
-/* eslint-disable no-constant-binary-expression */
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from './components/ui/button';
