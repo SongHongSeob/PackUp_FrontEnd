@@ -753,7 +753,7 @@ const TemplateDetailPage = () => {
                         </div>
 
                         {/* 텍스트 아이템들 (읽기 전용) */}
-                        {textItems.map((item, _index) => (
+                        {textItems.map((item) => (
                             <div
                                 key={item.id}
                                 className="absolute select-none text-item-container"
@@ -795,7 +795,7 @@ const TemplateDetailPage = () => {
                         ))}
 
                         {/* 오브젝트 아이템들 (읽기 전용) */}
-                        {objectItems.map((item, _index) => (
+                        {objectItems.map((item) => (
                             <div
                                 key={item.id}
                                 className="absolute"
