@@ -115,9 +115,9 @@ const SignupForm = () => {
                     {/* 체크박스들 */}
                     <div className='flex flex-col items-start gap-[10px] self-stretch'>
                         {/* 임시 onViewClick */}
-                        <Checkbox label='이용약관 동의(필수)' onChange={(checked) => handleAgreementChange('terms', checked)} onViewClick={() => console.log('이용약관 보기')} />
-                        <Checkbox label='개인정보 수집 및 이용 동의(필수)' onChange={(checked) => handleAgreementChange('privacy', checked)} onViewClick={() => console.log('개인정보 보기')} />
-                        <Checkbox label='마케팅 정보 수신 동의(선택)' onChange={(checked) => handleAgreementChange('marketing', checked)} onViewClick={() => console.log('마케팅 보기')} />
+                        <Checkbox label='이용약관 동의(필수)' onChange={(checked) => handleAgreementChange('terms', checked)} onViewClick={() => navigate('/agreements/terms')} />
+                        <Checkbox label='개인정보 수집 및 이용 동의(필수)' onChange={(checked) => handleAgreementChange('privacy', checked)} onViewClick={() => navigate('/agreements/privacy')} />
+                        <Checkbox label='마케팅 정보 수신 동의(선택)' onChange={(checked) => handleAgreementChange('marketing', checked)} onViewClick={() => navigate('/agreements/marketing')} />
                     </div>
                 </div>
                 {/* actions */}
