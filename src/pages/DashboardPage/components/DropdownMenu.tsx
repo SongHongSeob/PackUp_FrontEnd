@@ -41,7 +41,7 @@ const DropdownMenu: React.FC<DropdownMenuProps> = ({
                     role="menuitem"
                     className="cursor-pointer flex h-[36px] justify-center items-center gap-[8px]">
                         <EditIcon className="w-[18px] h-[18px]" />
-                        <p className="text-[rgba(0,0,0,0.7)] font-pretendard text-[16px] font-medium leading-normal">편집하기</p>
+                        <p className="text-[rgba(0,0,0,0.7)] font-pretendard text-[16px] font-medium leading-normal">상세보기</p>
                     </button>
                 </li>
                 <li>

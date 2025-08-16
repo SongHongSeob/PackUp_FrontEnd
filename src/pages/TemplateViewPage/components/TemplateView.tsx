@@ -105,7 +105,7 @@ const TemplateView = () => {
                 return (
                     <img
                         key={i}
-                        src="https://packupapi.xyz/images/object/daily/Backpack.png"
+                        src="http://localhost:8080/images/object/daily/Backpack.png"
                         draggable={false} // 드래그 미리보기 방지
                         className="absolute"
                         style={{

@@ -1,5 +1,6 @@
 import TemplateCardSmall from "./TemplateCardSmall";
 import type { TemplateListItem } from "../../../stores/templateListStore";
+import { useNavigate } from "react-router-dom";
 
 type TemplateGridProps = {
     templates: TemplateListItem[];
@@ -7,6 +8,13 @@ type TemplateGridProps = {
 };
 
 const TemplateGrid: React.FC<TemplateGridProps> = ({ templates, onBookmarkToggle }) => {
+    const navigate = useNavigate();
+    
+    // 템플릿 상세보기 페이지로 이동
+    const handleDetail = (templateNo: number) => {
+        navigate(`/template/${templateNo}/detail`);
+    };
+    
     // 4개씩 맞추기 위한 placeholder 계산
     const placeholderCount = templates.length % 4 === 0 ? 0 : 4 - (templates.length % 4);
     const placeholders = Array(placeholderCount).fill(null); // null을 placeholder로 사용
@@ -22,7 +30,7 @@ const TemplateGrid: React.FC<TemplateGridProps> = ({ templates, onBookmarkToggle
                             key={item.templateNo}
                             template={item}
                             onRename={() => {}}
-                            onEdit={() => {}}
+                            onEdit={() => handleDetail(item.templateNo)}
                             onDuplicate={() => {}}
                             onDelete={() => {}}
                             onBookmarkToggle={onBookmarkToggle} />

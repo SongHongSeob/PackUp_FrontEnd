@@ -20,12 +20,30 @@ const TimeSelectModal = () => {
     const [localHour, setLocalHour] = useState<number>(selectedTime.hour);
     const [localMinute, setLocalMinute] = useState<number>(selectedTime.minute);
 
-    const handleComplete = () => {
+    const updateTime = (meridiem: "오전" | "오후", hour: number, minute: number) => {
         setSelectedTime({
-            meridiem: localMeridiem,
-            hour: localHour,
-            minute: localMinute
+            meridiem,
+            hour,
+            minute
         });
+    };
+
+    const handleMeridiemChange = (meridiem: "오전" | "오후") => {
+        setLocalMeridiem(meridiem);
+        updateTime(meridiem, localHour, localMinute);
+    };
+
+    const handleHourChange = (hour: number) => {
+        setLocalHour(hour);
+        updateTime(localMeridiem, hour, localMinute);
+    };
+
+    const handleMinuteChange = (minute: number) => {
+        setLocalMinute(minute);
+        updateTime(localMeridiem, localHour, minute);
+    };
+
+    const handleComplete = () => {
         setShowTimeSelect(false);
     };
 
