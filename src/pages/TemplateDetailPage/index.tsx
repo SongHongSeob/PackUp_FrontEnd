@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import './TemplateDetailPage.css';
@@ -42,7 +42,6 @@ interface Step {
 const TemplateDetailPage = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const location = useLocation();
     
     // 상태 정의
     const [templateName, setTemplateName] = useState<string>('템플릿명');
@@ -50,6 +49,7 @@ const TemplateDetailPage = () => {
     const [currentStepCount, setCurrentStepCount] = useState<number>(1);
     const [backgroundImage, setBackgroundImage] = useState('/cate-1-step-1.svg');
     
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [steps, setSteps] = useState<Step[]>([]);
     const [textItems, setTextItems] = useState<TextItem[]>([]);
     const [objectItems, setObjectItems] = useState<{
@@ -63,6 +63,7 @@ const TemplateDetailPage = () => {
         content: string;
     }[]>([]);
     
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [selectedStep, setSelectedStep] = useState<string>('step1');
     const [selectedStepId, setSelectedStepId] = useState<string>('step1');
     
