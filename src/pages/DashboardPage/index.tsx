@@ -205,7 +205,7 @@ const DashboardPage = () => {
 
             console.log('API 요청:', requestBody);
 
-            const response = await fetch("http://localhost:8080/temp/getUserTemplateDataList", {
+            const response = await fetch("http://3.35.147.68:8080/temp/getUserTemplateDataList", {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -296,7 +296,7 @@ const DashboardPage = () => {
             setIsLoading(false);
             setIsLoadingMore(false);
         }
-    }, [selectedCategory, selectedAlign, currentPage]);
+    }, [selectedCategory, selectedAlign, currentPage, allTemplates.length, displayedTemplateCount, totalTemplateCount]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -305,7 +305,7 @@ const DashboardPage = () => {
         setTotalTemplateCount(0); // 카테고리 변경 시 전체 개수 초기화
         setDisplayedTemplateCount(0); // 카테고리 변경 시 화면 구성 개수 초기화
         fetchTemplates(undefined, 1, true);
-    }, [selectedCategory, selectedAlign]);
+    }, [selectedCategory, selectedAlign, fetchTemplates]);
 
     // displayedTemplateCount와 totalTemplateCount 상태 변경 시 hasMore 업데이트 및 로깅
     useEffect(() => {

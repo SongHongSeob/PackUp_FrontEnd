@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import html2canvas from 'html2canvas';
 import Button from '../../components/Button';
-import { ArrowLeftIcon, AddIcon } from '../../assets';
+import { ArrowLeftIcon } from '../../assets';
 import CategorySelectModal from './components/CategorySelectModal';
 import StepSelectModal from './components/StepSelectModal';
 import BackgroundSelectModal from './components/BackgroundSelectModal';
@@ -36,9 +38,9 @@ const TextItemComponent: React.FC<TextItemComponentProps> = ({
     onEdit,
     onSave,
     onDelete,
-    onDragStart,
-    onDragEnd,
-    onMove
+    onDragStart: _onDragStart,
+    onDragEnd: _onDragEnd,
+    onMove: _onMove
 }) => {
     const [editContent, setEditContent] = useState(textItem.content);
     const [isExpanded, setIsExpanded] = useState(false);
@@ -234,14 +236,13 @@ const TemplateEditPage = () => {
                 const gridY = Math.floor(objY / 50);
                 
                 if (gridX >= 0 && gridX < 8 && gridY >= 0 && gridY < 8) {
-                    const gridItem = {
-                        type: 'icon' as const,
+                    const gridItem: GridItem = {
+                        type: 'object',
                         id: `obj_${stepIndex}_${objIndex}`,
-                        label: obj.objNm || obj.label || obj.name || `오브젝트${objIndex}`,
+                        content: obj.objNm || obj.label || obj.name || `오브젝트${objIndex}`,
                         x: gridX,
                         y: gridY,
-                        category: obj.cateNo || obj.category || 1,
-                        cateNo: obj.cateNo || obj.category || 1
+                        stepId: `step${stepIndex + 1}`
                     };
                     
                     newStep.grid[gridY][gridX] = gridItem;
@@ -262,10 +263,10 @@ const TemplateEditPage = () => {
                 convertedTextItems.push({
                     id: `text_${stepIndex}_${textIndex}`,
                     content: textData.text || textData.content || '',
-                    x: textData.stepTextX || textData.x || 0,
-                    y: textData.stepTextY || textData.y || 0,
+                    x: Number(textData.stepTextX || textData.x || 0),
+                    y: Number(textData.stepTextY || textData.y || 0),
                     isEditing: false,
-                    fontSize: '14px',
+                    fontSize: 14,
                     color: '#000000'
                 });
             });
@@ -330,8 +331,8 @@ const TemplateEditPage = () => {
                         
                     // stepsList가 있는 경우 데이터를 포함한 스텝 생성, 없으면 빈 스텝 생성
                     let finalSteps: Step[] = [];
-                    let finalTextItems: TextItem[] = [];
-                    let finalObjectItems: any[] = [];
+                    const finalTextItems: TextItem[] = [];
+                    const finalObjectItems: any[] = [];
                         
                         if (templateData.stepsList) {
                             
@@ -406,10 +407,10 @@ const TemplateEditPage = () => {
                                             const textItem = {
                                                 id: `text_${stepIndex}_${textIndex}`,
                                                 content: textData.text || '',
-                                                x: textData.stepTextX || 0,
-                                                y: textData.stepTextY || 0,
+                                                x: Number(textData.stepTextX || 0),
+                                                y: Number(textData.stepTextY || 0),
                                                 isEditing: false,
-                                                fontSize: '14px',
+                                                fontSize: 14,
                                                 color: '#000000'
                                             };
                                             
@@ -487,10 +488,10 @@ const TemplateEditPage = () => {
                                         const textItem = {
                                             id: `text_0_${textIndex}`,
                                             content: textData.text || '',
-                                            x: textData.stepTextX || 0,
-                                            y: textData.stepTextY || 0,
+                                            x: Number(textData.stepTextX || 0),
+                                            y: Number(textData.stepTextY || 0),
                                             isEditing: false,
-                                            fontSize: '14px',
+                                            fontSize: 14,
                                             color: '#000000'
                                         };
                                         
@@ -514,8 +515,8 @@ const TemplateEditPage = () => {
                     setSelectedStep('step1');
                     setSelectedStepId('step1');
                         
-                        finalSteps.forEach((step, index) => {
-                            const itemCount = step.grid.flat().filter(item => item !== null).length;
+                        finalSteps.forEach((step, _index) => {
+                            const _itemCount = step.grid.flat().filter(item => item !== null).length;
                         });
                     }
                 
@@ -651,14 +652,14 @@ const TemplateEditPage = () => {
     ]);
     const [currentStepCount, setCurrentStepCount] = useState(1);
     const [selectedStep, setSelectedStep] = useState<string>('step1');
-    const [selectedElement, setSelectedElement] = useState<GridItem | null>(null);
-    const [draggedItem, setDraggedItem] = useState<GridItem | null>(null);
-    const [dragOverPosition, setDragOverPosition] = useState<{x: number, y: number} | null>(null);
+    const [, setSelectedElement] = useState<GridItem | null>(null);
+    const [, setDraggedItem] = useState<GridItem | null>(null);
+    const [, setDragOverPosition] = useState<{x: number, y: number} | null>(null);
     const [currentCategory, setCurrentCategory] = useState<Category>('여행'); // 상단 카테고리 선택 (저장 시 사용)
     const [objectCategory, setObjectCategory] = useState<Category>('여행'); // 우측 오브젝트 선택용 카테고리
     const [backgroundImage, setBackgroundImage] = useState('/cate-1-step-1.svg');
     
-    const [showGrid, setShowGrid] = useState(false);
+    const [, setShowGrid] = useState(false);
     const [activeTab, setActiveTab] = useState<ActiveTab>('preparations');
     const [recommendationTab, setRecommendationTab] = useState<RecommendationTab>('recommended');
     
@@ -803,13 +804,13 @@ const TemplateEditPage = () => {
     };
 
     // 스텝 선택
-    const selectStep = (stepId: string) => {
+    const _selectStep = (stepId: string) => {
         setSelectedStep(stepId);
         setSelectedStepId(stepId);
     };
 
     // 아이콘 드래그 앤 드롭 핸들러 수정
-    const handleDrop = (e: React.DragEvent, stepId: string, sectionId: string, colIndex: number, rowIndex: number) => {
+    const _handleDrop = (e: React.DragEvent, stepId: string, sectionId: string, colIndex: number, rowIndex: number) => {
         e.preventDefault();
         
         try {
@@ -859,19 +860,19 @@ const TemplateEditPage = () => {
     };
 
     // 아이콘 드래그 시작 (기존 함수 제거)
-    const handleIconDragStart = (e: React.DragEvent, item: GridItem) => {
+    const _handleIconDragStart = (e: React.DragEvent, item: GridItem) => {
         e.dataTransfer.setData('application/json', JSON.stringify(item));
         e.dataTransfer.effectAllowed = 'move';
     };
 
     // 아이콘 드래그 오버
-    const handleDragOver = (e: React.DragEvent, colIndex: number, rowIndex: number) => {
+    const _handleDragOver = (e: React.DragEvent, _colIndex: number, _rowIndex: number) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     };
 
     // 드래그 종료 (기존 함수 제거)
-    const handleIconDragEnd = () => {
+    const _handleIconDragEnd = () => {
         setDraggedItem(null);
         setDragOverPosition(null);
         setShowGrid(false);
@@ -955,7 +956,7 @@ const TemplateEditPage = () => {
     };
 
     // 오브젝트 배치 가능 여부 확인
-    const canPlaceObject = (x: number, y: number) => {
+    const _canPlaceObject = (x: number, y: number) => {
         const currentStep = steps.find(step => step.id === selectedStep);
         if (currentStep && currentStep.grid[y] && currentStep.grid[y][x] === null) {
             return true;
@@ -1104,23 +1105,26 @@ const TemplateEditPage = () => {
             if (currentStep && ctx) {
                 
                 // 그리드 섹션 그리기 (편집 모드가 아닐 때는 표시하지 않음)
-                if (false && currentStep.sections) { // 미리보기에서는 그리드 표시 안함
-                    currentStep.sections.forEach((section, index) => {
+                // 미리보기에서는 그리드 표시 안함 (비활성화됨)
+                /*
+                if (currentStep.sections) {
+                    currentStep.sections.forEach((section, _index) => {
                         const x = (section.x / 100) * canvasWidth;
                         const y = (section.y / 100) * canvasHeight;
                         const width = (section.width / 100) * canvasWidth;
                         const height = (section.height / 100) * canvasHeight;
                         
                         // 섹션 테두리만 그리기 (배경은 투명)
-                        ctx.strokeStyle = '#3b82f6';
-                        ctx.lineWidth = 2;
-                        ctx.strokeRect(x, y, width, height);
+                        ctx!.strokeStyle = '#3b82f6';
+                        ctx!.lineWidth = 2;
+                        ctx!.strokeRect(x, y, width, height);
                     });
                 }
+                */
 
                 // 텍스트 아이템 그리기 (접힌 상태로만 표시)
                 if (textItems.length > 0) {
-                    textItems.forEach((item, index) => {
+                    textItems.forEach((item, _index) => {
                         const x = (Number(item.x) / 100) * canvasWidth;
                         const y = (Number(item.y) / 100) * canvasHeight;
                         
@@ -1379,7 +1383,7 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 위치를 픽셀로 변환하는 함수
-    const convertTextPositionToPixels = (textItem: TextItem, targetWidth: number, targetHeight: number) => {
+    const _convertTextPositionToPixels = (textItem: TextItem, targetWidth: number, targetHeight: number) => {
         let x = Number(textItem.x);
         let y = Number(textItem.y);
         
@@ -1423,7 +1427,7 @@ const TemplateEditPage = () => {
     };
 
     // 섹션 제목 편집 핸들러
-    const handleSectionNameEdit = (sectionId: string, currentName: string) => {
+    const _handleSectionNameEdit = (sectionId: string, currentName: string) => {
         setEditingSectionId(sectionId);
         setEditingSectionName(currentName);
     };
@@ -1445,7 +1449,7 @@ const TemplateEditPage = () => {
         setEditingSectionName('');
     };
 
-    const handleSectionNameKeyPress = (e: React.KeyboardEvent) => {
+    const _handleSectionNameKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSectionNameSave();
         } else if (e.key === 'Escape') {
@@ -1455,7 +1459,7 @@ const TemplateEditPage = () => {
     };
 
     // 섹션 기본 이름 가져오기
-    const getDefaultSectionName = (sectionId: string) => {
+    const _getDefaultSectionName = (sectionId: string) => {
         const names: { [key: string]: string } = {
             'main': '6×6 메인공간',
             'area-1': '6×3 좌측구역',
@@ -1479,7 +1483,7 @@ const TemplateEditPage = () => {
         // 영역별로 그룹화 (같은 x 좌표를 가진 것들)
         const groups: {[key: string]: Array<{index: number, baseY: number}>} = {};
         
-        basePositions.forEach((pos, index) => {
+        basePositions.forEach((pos, _index) => {
             const key = pos.x;
             if (!groups[key]) groups[key] = [];
             groups[key].push({ index, baseY: parseFloat(pos.y) });
@@ -1490,7 +1494,7 @@ const TemplateEditPage = () => {
             const group = groups[xPos];
             let currentY = group[0].baseY;
             
-            group.forEach((item, groupIndex) => {
+            group.forEach((item, _groupIndex) => {
                 const textItem = textItems[item.index];
                 const baseHeight = 15; // 기본 텍스트 박스 높이 (%)
                 const margin = 3; // 박스 간 여백 (%)
@@ -1581,7 +1585,7 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 추가 핸들러 수정 - 스텝별 정해진 위치에 배치
-    const handleAddText = () => {
+    const _handleAddText = () => {
         // 속성 탭으로 이동
         setActiveTab('attributes');
         
@@ -1618,7 +1622,7 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 삭제
-    const handleTextDelete = (textId: string) => {
+    const _handleTextDelete = (textId: string) => {
         setTextItems(prev => prev.filter(item => item.id !== textId));
     };
 
@@ -1733,8 +1737,8 @@ const TemplateEditPage = () => {
                     stepId: selectedStepId || selectedStep,
                     sectionId: 'background',
                     // cateNo가 없는 경우 category에서 추가
-                    cateNo: selectedElement.cateNo || (() => {
-                        switch (selectedElement.category) {
+                    cateNo: (selectedElement as any).cateNo || (() => {
+                        switch ((selectedElement as any).category) {
                             case '업무': return 1;
                             case '생활': return 2;
                             case '여행': return 3;
@@ -1907,7 +1911,7 @@ const TemplateEditPage = () => {
                         objNm: sanitizeData(item.label || '오브젝트'),
                         objX: item.x,
                         objY: item.y,
-                        cateNo: item.cateNo || 3 // 카테고리 번호 추가 (기본값: 3=여행)
+                        cateNo: (item as any).cateNo || 3 // 카테고리 번호 추가 (기본값: 3=여행)
                     };
                 });
 
@@ -1916,7 +1920,7 @@ const TemplateEditPage = () => {
                     objNm: sanitizeData(item.label || '오브젝트'),
                     objX: item.x,
                     objY: item.y,
-                    cateNo: item.cateNo || 3
+                    cateNo: (item as any).cateNo || 3
                 }));
 
                 // 두 리스트 합치기
@@ -1985,7 +1989,7 @@ const TemplateEditPage = () => {
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
-            const result = await response.json();
+            const _result = await response.json();
             
             alert('템플릿이 성공적으로 수정되었습니다!');
             navigate('/dashboard');
@@ -2021,7 +2025,7 @@ const TemplateEditPage = () => {
                         objNm: sanitizeData(item.label || '오브젝트'),
                         objX: item.x,
                         objY: item.y,
-                        cateNo: item.cateNo || 3 // 카테고리 번호 추가 (기본값: 3=여행)
+                        cateNo: (item as any).cateNo || 3 // 카테고리 번호 추가 (기본값: 3=여행)
                     };
                 });
 
@@ -2087,7 +2091,7 @@ const TemplateEditPage = () => {
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
-            const responseData = await response.json();
+            const _responseData = await response.json();
             
             alert('템플릿이 성공적으로 저장되었습니다!');
 
@@ -2127,7 +2131,7 @@ const TemplateEditPage = () => {
                 y: centerY,
                 stepId: selectedStepId || selectedStep,
                 sectionId: 'background',
-                category: icon.category,
+                // category: icon.category,
                 cateNo: (() => {
                     switch (icon.category) {
                         case '업무': return 1;
@@ -2368,7 +2372,7 @@ const TemplateEditPage = () => {
                                                     const img = e.target as HTMLImageElement;
                                                     // 이미지 로드 실패 시 기본 이미지로 대체
                                                     const categoryMap = { 1: '업무', 2: '일상', 3: '여행' };
-                                                    const categoryName = categoryMap[item.cateNo as keyof typeof categoryMap] || '업무';
+                                                    const categoryName = categoryMap[(item as any).cateNo as keyof typeof categoryMap] || '업무';
                                                     img.src = `/1. 오브젝트/${categoryName}/100px/간식.png`;
                                                     console.warn(`이미지 로드 실패: ${item.content}, 대체 이미지 사용: ${img.src}`);
                                                 }}
@@ -2555,7 +2559,7 @@ const TemplateEditPage = () => {
                                                     const img = e.target as HTMLImageElement;
                                                     // 이미지 로드 실패 시 기본 이미지로 대체
                                                     const categoryMap = { 1: '업무', 2: '일상', 3: '여행' };
-                                                    const categoryName = categoryMap[item.cateNo as keyof typeof categoryMap] || '업무';
+                                                    const categoryName = categoryMap[(item as any).cateNo as keyof typeof categoryMap] || '업무';
                                                     img.src = `/1. 오브젝트/${categoryName}/100px/간식.png`;
                                                     console.warn(`이미지 로드 실패: ${item.content}, 대체 이미지 사용: ${img.src}`);
                                                 }}
@@ -2692,7 +2696,7 @@ const TemplateEditPage = () => {
                                                     y: 0,
                                                     stepId: selectedStep,
                                                     label: icon.label,
-                                                    category: icon.category // 카테고리 정보 추가
+                                                    cateNo: icon.category === '업무' ? 1 : icon.category === '생활' ? 2 : 3 // 카테고리 정보 추가
                                                 };
                                                 e.dataTransfer.setData('application/json', JSON.stringify(dragItem));
                                                 e.dataTransfer.effectAllowed = 'copy';

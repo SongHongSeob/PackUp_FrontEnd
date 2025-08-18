@@ -29,19 +29,19 @@ const TimeSelectModal = () => {
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleMeridiemChange = (meridiem: "오전" | "오후") => {
+    const _handleMeridiemChange = (meridiem: "오전" | "오후") => {
         setLocalMeridiem(meridiem);
         updateTime(meridiem, localHour, localMinute);
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleHourChange = (hour: number) => {
+    const _handleHourChange = (hour: number) => {
         setLocalHour(hour);
         updateTime(localMeridiem, hour, localMinute);
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const handleMinuteChange = (minute: number) => {
+    const _handleMinuteChange = (minute: number) => {
         setLocalMinute(minute);
         updateTime(localMeridiem, localHour, minute);
     };

@@ -50,21 +50,21 @@ export default function BackgroundSelectModal({
   // 카테고리별 배경 옵션 (여행: 캐리어, 업무: 서류가방 등)
   const getCategoryBackgroundOptions = (category: Category) => {
     switch (category) {
-      case 'travel':
+      case '여행':
         return [
           { id: 'travel-carrier-1', name: '캐리어 타입 1', type: 'carrier' },
           { id: 'travel-carrier-2', name: '캐리어 타입 2', type: 'carrier' },
           { id: 'travel-backpack', name: '백팩', type: 'backpack' },
           { id: 'travel-duffel', name: '더플백', type: 'duffel' }
         ];
-      case 'business':
+      case '업무':
         return [
           { id: 'business-briefcase-1', name: '서류가방 타입 1', type: 'briefcase' },
           { id: 'business-briefcase-2', name: '서류가방 타입 2', type: 'briefcase' },
           { id: 'business-laptop', name: '노트북 가방', type: 'laptop' },
           { id: 'business-messenger', name: '메신저백', type: 'messenger' }
         ];
-      case 'daily':
+      case '생활':
         return [
           { id: 'daily-tote', name: '토트백', type: 'tote' },
           { id: 'daily-shoulder', name: '숄더백', type: 'shoulder' },
