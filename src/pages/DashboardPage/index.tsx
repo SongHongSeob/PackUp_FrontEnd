@@ -199,7 +199,7 @@ const DashboardPage = () => {
             };
             if (categoryValue) requestBody.cateNo = categoryValue;
 
-            const response = await fetch("http://localhost:8080/temp/getUserTemplateDataList", {
+            const response = await fetch("http://3.35.147.68:8080/temp/getUserTemplateDataList", {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -259,7 +259,7 @@ const DashboardPage = () => {
             setIsLoading(false);
             setIsLoadingMore(false);
         }
-    }, [selectedCategory, selectedAlign, currentPage]);
+    }, [selectedCategory, selectedAlign, currentPage, allTemplates.length, displayedTemplateCount, totalTemplateCount]);
 
     useEffect(() => {
         setCurrentPage(1);

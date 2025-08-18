@@ -62,7 +62,7 @@ const SignupForm = () => {
                 mktAgree: agreements.marketing
             };
 
-            const response = await fetch('http://localhost:8080/register/userRegister', {
+            const response = await fetch('http://3.35.147.68:8080/register/userRegister', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

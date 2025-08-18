@@ -95,7 +95,7 @@ const TemplateDetailPage = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:8080/temp/templateDelete', {
+            const response = await fetch('http://3.35.147.68:8080/temp/templateDelete', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -251,9 +251,8 @@ const TemplateDetailPage = () => {
     const formattedTime = isTimeSet
         ? `${selectedTime.meridiem} ${selectedTime.hour === 0 ? 12 : selectedTime.hour}:${selectedTime.minute.toString().padStart(2, "0")}`
         : "없음";
-    void formattedTime; // 디버깅용
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const formattedChannels = selectedChannels.length > 0 ? selectedChannels.join(", ") : "없음";
-    void formattedChannels; // 디버깅용
     
     const handleSaveNotification = async () => {
         try {

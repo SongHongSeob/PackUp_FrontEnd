@@ -9,6 +9,8 @@ export interface GridItem {
   stepId: string;
   sectionId?: string;
   label?: string;
+  cateNo?: number;
+  category?: string;
 }
 
 export interface TextItem {
