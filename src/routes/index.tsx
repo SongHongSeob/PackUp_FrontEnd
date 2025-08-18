@@ -5,7 +5,6 @@ import SnsCallback from '../pages/AuthPage/components/SnsCallback';
 import TemplateViewPage from '../pages/TemplateViewPage';
 import TemplateEditPage from '../pages/TemplateEditPage';
 import TemplateDetailPage from '../pages/TemplateDetailPage';
-import AgreementDetail from '../pages/Agreements';
 
 export const routes = [
     { path: '/', element: <LandingPage /> },
@@ -17,5 +16,4 @@ export const routes = [
     { path: 'template/:id/edit', element: <TemplateEditPage /> },
     { path: 'template/new/edit', element: <TemplateEditPage /> }, // 새 템플릿 생성 라우트
     { path: 'template/preset-:presetId/edit', element: <TemplateEditPage /> }, // 프리셋 템플릿 생성 라우트
-    { path: 'agreements/:id', element: <AgreementDetail /> },
 ];
