@@ -247,12 +247,12 @@ const TemplateDetailPage = () => {
         );
     };
     
-    const isTimeSet = selectedTime.hour !== 0 || selectedTime.minute !== 0 || (selectedTime.hour === 0 && selectedTime.meridiem === '오전');
-    const formattedTime = isTimeSet
+    //const isTimeSet = selectedTime.hour !== 0 || selectedTime.minute !== 0 || (selectedTime.hour === 0 && selectedTime.meridiem === '오전');
+    /*const formattedTime = isTimeSet
         ? `${selectedTime.meridiem} ${selectedTime.hour === 0 ? 12 : selectedTime.hour}:${selectedTime.minute.toString().padStart(2, "0")}`
         : "없음";
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const formattedChannels = selectedChannels.length > 0 ? selectedChannels.join(", ") : "없음";
+    const formattedChannels = selectedChannels.length > 0 ? selectedChannels.join(", ") : "없음";*/
     
     const handleSaveNotification = async () => {
         try {
