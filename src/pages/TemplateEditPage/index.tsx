@@ -18,6 +18,36 @@ import type {
 } from './types';
 import './TemplateEditPage.css';
 
+// 오브젝트 아이템
+interface StepObjectItem {
+  objX?: number;
+  objY?: number;
+  x?: number;
+  y?: number;
+  objNm?: string;
+  label?: string;
+  name?: string;
+  content?: string;
+}
+
+// 텍스트 아이템
+interface StepTextItem {
+  stepTextX?: number;
+  stepTextY?: number;
+  x?: number;
+  y?: number;
+  text?: string;
+  content?: string;
+}
+
+// 스텝 데이터
+interface StepData {
+  stepObjList?: StepObjectItem[];
+  objList?: StepObjectItem[];
+  stepTextList?: StepTextItem[];
+  textList?: StepTextItem[];
+}
+
 
 const TemplateEditPage = () => {
     const { id, presetId } = useParams<{ id?: string; presetId?: string }>(); // URL 파라미터들
@@ -32,96 +62,102 @@ const TemplateEditPage = () => {
     const isEditMode = id && id !== 'new' && !isNaN(Number(id));
     
     // 받아온 데이터를 steps와 textItems로 변환하는 함수
-    const convertDataToSteps = (stepObjList: any, stepTextList: any) => {
-        
-        if (!stepObjList && !stepTextList) return null;
-        
-        const convertedSteps: Step[] = [];
-        const convertedTextItems: TextItem[] = [];
-        
-        // stepsList 구조에 맞게 데이터 처리
-        let stepsData: any[] = [];
-        
-        if (Array.isArray(stepObjList)) {
-            // stepObjList가 stepsList인 경우 (템플릿 데이터에서 온 경우)
-            stepsData = stepObjList;
-        } else if (stepObjList && typeof stepObjList === 'object') {
-            // 단일 스텝 데이터인 경우
-            stepsData = [stepObjList];
+    // 받아온 데이터를 steps와 textItems로 변환하는 함수
+const convertDataToSteps = (
+    stepObjList: StepData | StepData[] | null | undefined,
+    stepTextList: StepTextItem[] | null | undefined
+    ) => {
+    if (!stepObjList && !stepTextList) return null;
+
+    const convertedSteps: Step[] = [];
+    const convertedTextItems: TextItem[] = [];
+
+    // stepsList 구조에 맞게 데이터 처리
+    let stepsData: StepData[] = [];
+
+    if (Array.isArray(stepObjList)) {
+        // stepObjList가 stepsList인 경우 (템플릿 데이터에서 온 경우)
+        stepsData = stepObjList;
+    } else if (stepObjList && typeof stepObjList === "object") {
+        // 단일 스텝 데이터인 경우
+        stepsData = [stepObjList];
+    }
+
+    // 스텝 데이터가 없으면 기본 스텝 1개 생성
+    if (stepsData.length === 0) {
+        stepsData = [{ stepObjList: [], stepTextList: [] }];
+    }
+
+    stepsData.forEach((stepData: StepData, stepIndex: number) => {
+        const stepId = `step${stepIndex + 1}`;
+        // Step 생성
+        const newStep: Step = {
+        id: stepId,
+        name: `스텝 ${stepIndex + 1}`,
+        grid: Array(8)
+            .fill(null)
+            .map(() => Array(8).fill(null)),
+        sections: getStepSections(stepIndex + 1),
+        };
+
+        // stepObjList 처리
+        let objList: StepObjectItem[] = [];
+        if (stepData.stepObjList && Array.isArray(stepData.stepObjList)) {
+        objList = stepData.stepObjList;
+        } else if (stepData.objList && Array.isArray(stepData.objList)) {
+        objList = stepData.objList;
+        } else if (Array.isArray(stepData)) {
+        // 타입 강제 단언 필요 (API가 배열로 올 수도 있으므로)
+        objList = stepData as unknown as StepObjectItem[];
         }
-        
-        // 스텝 데이터가 없으면 기본 스텝 1개 생성
-        if (stepsData.length === 0) {
-            stepsData = [{ stepObjList: [], stepTextList: [] }];
-        }
-        
-        stepsData.forEach((stepData: any, stepIndex: number) => {
-            const stepId = `step${stepIndex + 1}`;
-            // Step 생성
-            const newStep: Step = {
-                id: stepId,
-                name: `스텝 ${stepIndex + 1}`,
-                grid: Array(8).fill(null).map(() => Array(8).fill(null)),
-                sections: getStepSections(stepIndex + 1)
+
+        objList.forEach((obj: StepObjectItem, objIndex: number) => {
+        // 좌표를 그리드 인덱스로 변환
+        const objX = obj.objX ?? obj.x ?? 0;
+        const objY = obj.objY ?? obj.y ?? 0;
+        const gridX = Math.floor(objX / 50);
+        const gridY = Math.floor(objY / 50);
+
+        if (gridX >= 0 && gridX < 8 && gridY >= 0 && gridY < 8) {
+            const gridItem = {
+            type: "object" as const,
+            id: `obj_${stepIndex}_${objIndex}`,
+            label:
+                obj.objNm || obj.label || obj.name || `오브젝트${objIndex}`,
+            x: gridX,
+            y: gridY,
+            content: obj.content || "",
+            stepId: `step${stepIndex + 1}`,
             };
-            
-            // stepObjList 처리 - 다양한 데이터 구조에 대응
-            let objList: any[] = [];
-            if (stepData.stepObjList && Array.isArray(stepData.stepObjList)) {
-                objList = stepData.stepObjList;
-            } else if (stepData.objList && Array.isArray(stepData.objList)) {
-                objList = stepData.objList;
-            } else if (Array.isArray(stepData)) {
-                objList = stepData;
-            }
-            
-            objList.forEach((obj: any, objIndex: number) => {
-                
-                // 좌표를 그리드 인덱스로 변환 (다양한 좌표 필드명 대응)
-                const objX = obj.objX || obj.x || 0;
-                const objY = obj.objY || obj.y || 0;
-                const gridX = Math.floor(objX / 50);
-                const gridY = Math.floor(objY / 50);
-                
-                if (gridX >= 0 && gridX < 8 && gridY >= 0 && gridY < 8) {
-                    const gridItem = {
-                        type: 'object' as const,
-                        id: `obj_${stepIndex}_${objIndex}`,
-                        label: obj.objNm || obj.label || obj.name || `오브젝트${objIndex}`,
-                        x: gridX,
-                        y: gridY,
-                        content: obj.content || '',
-                        stepId: `step${stepIndex + 1}`
-                    };
-                    
-                    newStep.grid[gridY][gridX] = gridItem;
-                }
-            });
-            
-            convertedSteps.push(newStep);
-            
-            // stepTextList 처리
-            let textList: any[] = [];
-            if (stepData.stepTextList && Array.isArray(stepData.stepTextList)) {
-                textList = stepData.stepTextList;
-            } else if (stepData.textList && Array.isArray(stepData.textList)) {
-                textList = stepData.textList;
-            }
-            
-            textList.forEach((textData: any, textIndex: number) => {
-                convertedTextItems.push({
-                    id: `text_${stepIndex}_${textIndex}`,
-                    content: textData.text || textData.content || '',
-                    x: textData.stepTextX || textData.x || 0,
-                    y: textData.stepTextY || textData.y || 0,
-                    isEditing: false,
-                    fontSize: 14,
-                    color: '#000000'
-                });
-            });
+
+            newStep.grid[gridY][gridX] = gridItem;
+        }
         });
-        
-        return { steps: convertedSteps, textItems: convertedTextItems };
+
+        convertedSteps.push(newStep);
+
+        // stepTextList 처리
+        let textList: StepTextItem[] = [];
+        if (stepData.stepTextList && Array.isArray(stepData.stepTextList)) {
+        textList = stepData.stepTextList;
+        } else if (stepData.textList && Array.isArray(stepData.textList)) {
+        textList = stepData.textList;
+        }
+
+        textList.forEach((textData: StepTextItem, textIndex: number) => {
+        convertedTextItems.push({
+            id: `text_${stepIndex}_${textIndex}`,
+            content: textData.text || textData.content || "",
+            x: textData.stepTextX ?? textData.x ?? 0,
+            y: textData.stepTextY ?? textData.y ?? 0,
+            isEditing: false,
+            fontSize: 14,
+            color: "#000000",
+        });
+        });
+    });
+
+    return { steps: convertedSteps, textItems: convertedTextItems };
     };
 
     // 컴포넌트 마운트 시 기존 템플릿 데이터 로드
@@ -177,17 +213,51 @@ const TemplateEditPage = () => {
                     // 스텝 수 설정 (stepCount가 없으면 1로 기본 설정)
                     const stepCount = templateData.stepCount || 1;
                     setCurrentStepCount(stepCount);
+
+                    // 오브젝트 데이터
+                    interface StepObject {
+                        objX: number;
+                        objY: number;
+                        objNm: string;
+                        cateNo: number;
+                        label?: string;
+                        name?: string;
+                        content?: string;
+                    }
+
+                    // 텍스트 데이터
+                    interface StepText {
+                        text: string;
+                        content?: string;
+                        stepTextX: number;
+                        stepTextY: number;
+                    }
+
+                    // 스텝 데이터
+                    interface StepData {
+                        stepObjList?: StepObject[];
+                        stepTextList?: StepText[];
+                    }
                         
                     // stepsList가 있는 경우 데이터를 포함한 스텝 생성, 없으면 빈 스텝 생성
                     let finalSteps: Step[] = [];
-                    let finalTextItems: TextItem[] = [];
-                    let finalObjectItems: any[] = [];
+                    const finalTextItems: TextItem[] = [];
+                    const finalObjectItems: {
+                        id: string;
+                        label: string;
+                        x: number;
+                        y: number;
+                        category: number;
+                        cateNo: number;
+                        type: string;
+                        content: string;
+                        }[] = [];
                         
                         if (templateData.stepsList) {
                             
                             // stepsList가 배열인 경우 (각 스텝별 데이터)
                             if (Array.isArray(templateData.stepsList)) {
-                                templateData.stepsList.forEach((stepData: any, stepIndex: number) => {
+                                templateData.stepsList.forEach((stepData: StepData, stepIndex: number) => {
                                     const stepId = `step${stepIndex + 1}`;
                                     
                                     // 기본 스텝 구조 생성
@@ -201,7 +271,7 @@ const TemplateEditPage = () => {
                                     // stepObjList 처리
                                     if (stepData.stepObjList && Array.isArray(stepData.stepObjList)) {
                                         
-                                        stepData.stepObjList.forEach((obj: any, objIndex: number) => {
+                                        stepData.stepObjList.forEach((obj: StepObject, objIndex: number) => {
                                             
                                             const objX = obj.objX || 0;
                                             const objY = obj.objY || 0;
@@ -226,7 +296,7 @@ const TemplateEditPage = () => {
                                                 try {
                                                     return `/1. 오브젝트/${categoryName}/100px/${label}.png`;
                                                 } catch (error) {
-                                                    console.warn(`이미지를 찾을 수 없습니다: ${label}.png in ${categoryName}`);
+                                                    console.warn(`이미지를 찾을 수 없습니다: ${label}.png in ${categoryName}, 에러 : `+error);
                                                     // 기본 이미지 반환
                                                     return `/1. 오브젝트/${categoryName}/100px/간식.png`;
                                                 }
@@ -252,7 +322,7 @@ const TemplateEditPage = () => {
                                     // stepTextList 처리
                                     if (stepData.stepTextList && Array.isArray(stepData.stepTextList)) {
                                         
-                                        stepData.stepTextList.forEach((textData: any, textIndex: number) => {
+                                        stepData.stepTextList.forEach((textData: StepText, textIndex: number) => {
                                             const textItem = {
                                                 id: `text_${stepIndex}_${textIndex}`,
                                                 content: textData.text || '',
@@ -282,7 +352,7 @@ const TemplateEditPage = () => {
                                 // stepObjList 처리
                                 if (templateData.stepsList.stepObjList && Array.isArray(templateData.stepsList.stepObjList)) {
                                     
-                                    templateData.stepsList.stepObjList.forEach((obj: any, objIndex: number) => {
+                                    templateData.stepsList.stepObjList.forEach((obj: StepObject, objIndex: number) => {
                                         
                                         const objX = obj.objX || 0;
                                         const objY = obj.objY || 0;
@@ -307,7 +377,7 @@ const TemplateEditPage = () => {
                                             try {
                                                 return `/1. 오브젝트/${categoryName}/100px/${label}.png`;
                                             } catch (error) {
-                                                console.warn(`이미지를 찾을 수 없습니다: ${label}.png in ${categoryName}`);
+                                                console.warn(`이미지를 찾을 수 없습니다: ${label}.png in ${categoryName}, 에러 : `+error);
                                                 // 기본 이미지 반환
                                                 return `/1. 오브젝트/${categoryName}/100px/간식.png`;
                                             }
@@ -333,7 +403,7 @@ const TemplateEditPage = () => {
                                 // stepTextList 처리
                                 if (templateData.stepsList.stepTextList && Array.isArray(templateData.stepsList.stepTextList)) {
                                     
-                                    templateData.stepsList.stepTextList.forEach((textData: any, textIndex: number) => {
+                                    templateData.stepsList.stepTextList.forEach((textData: StepText, textIndex: number) => {
                                         const textItem = {
                                             id: `text_0_${textIndex}`,
                                             content: textData.text || '',
@@ -363,10 +433,6 @@ const TemplateEditPage = () => {
                     setObjectItems(finalObjectItems);
                     setSelectedStep('step1');
                     setSelectedStepId('step1');
-                        
-                        finalSteps.forEach((step, _index) => {
-                            const _itemCount = step.grid.flat().filter(item => item !== null).length;
-                        });
                     }
                 
             } catch (error) {
@@ -501,14 +567,14 @@ const TemplateEditPage = () => {
     ]);
     const [currentStepCount, setCurrentStepCount] = useState(1);
     const [selectedStep, setSelectedStep] = useState<string>('step1');
-    const [selectedElement, _setSelectedElement] = useState<GridItem | null>(null);
-    const [_draggedItem, setDraggedItem] = useState<GridItem | null>(null);
-    const [_dragOverPosition, setDragOverPosition] = useState<{x: number, y: number} | null>(null);
+    const [selectedElement] = useState<GridItem | null>(null);
+    //const [setDraggedItem] = useState<GridItem | null>(null);
+    //const [setDragOverPosition] = useState<{x: number, y: number} | null>(null);
     const [currentCategory, setCurrentCategory] = useState<Category>('여행'); // 상단 카테고리 선택 (저장 시 사용)
     const [objectCategory, setObjectCategory] = useState<Category>('여행'); // 우측 오브젝트 선택용 카테고리
     const [backgroundImage, setBackgroundImage] = useState('/cate-1-step-1.svg');
     
-    const [_showGrid, setShowGrid] = useState(false);
+    //const [setShowGrid] = useState(false);
     const [activeTab, setActiveTab] = useState<ActiveTab>('preparations');
     const [recommendationTab, setRecommendationTab] = useState<RecommendationTab>('recommended');
     
@@ -526,7 +592,7 @@ const TemplateEditPage = () => {
     });
     const [isEditingName, setIsEditingName] = useState(false);
     const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
-    const [editingSectionName, setEditingSectionName] = useState('');
+    const [setEditingSectionName] = useState('');
     const [textItems, setTextItems] = useState<TextItem[]>([]);
     
     // 오브젝트 아이템들을 절대 좌표로 관리
@@ -570,7 +636,7 @@ const TemplateEditPage = () => {
     const [isDragging, setIsDragging] = useState(false);
     
     // objectItems 드래그 상태
-    const [draggedObjectItem, setDraggedObjectItem] = useState<any | null>(null);
+    const [draggedObjectItem, setDraggedObjectItem] = useState<StepObjectItem | null>(null);
     const [isDraggingObjectItem, setIsDraggingObjectItem] = useState(false);
     
     // 호버 상태
@@ -652,14 +718,8 @@ const TemplateEditPage = () => {
         setBackgroundImage(backgroundPath);
     };
 
-    // 스텝 선택
-    const _selectStep = (stepId: string) => {
-        setSelectedStep(stepId);
-        setSelectedStepId(stepId);
-    };
-
     // 아이콘 드래그 앤 드롭 핸들러 수정
-    const _handleDrop = (e: React.DragEvent, stepId: string, sectionId: string, colIndex: number, rowIndex: number) => {
+    /*const _handleDrop = (e: React.DragEvent, stepId: string, sectionId: string, colIndex: number, rowIndex: number) => {
         e.preventDefault();
         
         try {
@@ -706,26 +766,26 @@ const TemplateEditPage = () => {
         } catch (error) {
             console.error('드롭 처리 오류:', error);
         }
-    };
+    };*/
 
     // 아이콘 드래그 시작 (기존 함수 제거)
-    const _handleIconDragStart = (e: React.DragEvent, item: GridItem) => {
+    /*const _handleIconDragStart = (e: React.DragEvent, item: GridItem) => {
         e.dataTransfer.setData('application/json', JSON.stringify(item));
         e.dataTransfer.effectAllowed = 'move';
-    };
+    };*/
 
     // 아이콘 드래그 오버
-    const _handleDragOver = (e: React.DragEvent, _colIndex: number, _rowIndex: number) => {
+    /*const _handleDragOver = (e: React.DragEvent, _colIndex: number, _rowIndex: number) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
-    };
+    };*/
 
     // 드래그 종료 (기존 함수 제거)
-    const _handleIconDragEnd = () => {
+    /*const _handleIconDragEnd = () => {
         setDraggedItem(null);
         setDragOverPosition(null);
         setShowGrid(false);
-    };
+    };*/
 
     // 오브젝트 우클릭
     const handleObjectRightClick = (e: React.MouseEvent, item: GridItem) => {
@@ -805,16 +865,16 @@ const TemplateEditPage = () => {
     };
 
     // 오브젝트 배치 가능 여부 확인
-    const _canPlaceObject = (x: number, y: number) => {
+    /*const _canPlaceObject = (x: number, y: number) => {
         const currentStep = steps.find(step => step.id === selectedStep);
         if (currentStep && currentStep.grid[y] && currentStep.grid[y][x] === null) {
             return true;
         }
         return false;
-    };
+    };*/
 
     // objectItems 드래그 핸들러들
-    const handleObjectDragStart = (e: React.MouseEvent, item: any) => {
+    const handleObjectDragStart = (e: React.MouseEvent, item: StepObjectItem) => {
         e.preventDefault();
         setDraggedObjectItem(item);
         setIsDraggingObjectItem(true);
@@ -854,14 +914,14 @@ const TemplateEditPage = () => {
         setDraggedObjectItem(null);
     };
 
-    const handleObjectItemRightClick = (e: React.MouseEvent, item: any) => {
+    const handleObjectItemRightClick = (e: React.MouseEvent, item: StepObjectItem) => {
         e.preventDefault();
         setContextMenuPosition({ x: e.clientX, y: e.clientY });
         setContextMenuObject(item);
         setShowContextMenu(true);
     };
 
-    const duplicateObjectItem = (item: any) => {
+    const duplicateObjectItem = (item: StepObjectItem) => {
         const newItem = {
             ...item,
             id: `${item.id}_copy_${Date.now()}`,
@@ -873,7 +933,7 @@ const TemplateEditPage = () => {
         setShowContextMenu(false);
     };
 
-    const deleteObjectItem = (item: any) => {
+    const deleteObjectItem = (item: StepObjectItem) => {
         setObjectItems(prev => prev.filter(obj => obj.id !== item.id));
         setShowContextMenu(false);
     };
@@ -954,8 +1014,8 @@ const TemplateEditPage = () => {
             if (currentStep && ctx) {
                 
                 // 그리드 섹션 그리기 (편집 모드가 아닐 때는 표시하지 않음)
-                if (false && currentStep.sections) { // 미리보기에서는 그리드 표시 안함
-                    currentStep.sections.forEach((section, index) => {
+                /*if (false && currentStep.sections) { // 미리보기에서는 그리드 표시 안함
+                    currentStep.sections.forEach((section) => {
                         const x = (section.x / 100) * canvasWidth;
                         const y = (section.y / 100) * canvasHeight;
                         const width = (section.width / 100) * canvasWidth;
@@ -966,11 +1026,11 @@ const TemplateEditPage = () => {
                         ctx.lineWidth = 2;
                         ctx.strokeRect(x, y, width, height);
                     });
-                }
+                }*/
 
                 // 텍스트 아이템 그리기 (접힌 상태로만 표시)
                 if (textItems.length > 0) {
-                    textItems.forEach((item, index) => {
+                    textItems.forEach((item) => {
                         const x = (Number(item.x) / 100) * canvasWidth;
                         const y = (Number(item.y) / 100) * canvasHeight;
                         
@@ -1056,7 +1116,7 @@ const TemplateEditPage = () => {
                 if (currentStep && currentStep.items && currentStep.items.length > 0) {
                     
                     // 모든 아이콘을 동시에 처리 (자유 배치)
-                    const drawPromises = currentStep.items.map(async (item, _index) => {
+                    const drawPromises = currentStep.items.map(async (item) => {
                         if (item) {
                             
                             // 캔버스 전체 영역에서의 절대 위치 계산
@@ -1160,7 +1220,7 @@ const TemplateEditPage = () => {
                 // objectItems 그리기 (별도로 관리되는 오브젝트들)
                 if (objectItems && objectItems.length > 0) {
                     
-                    const objectDrawPromises = objectItems.map(async (item, _index) => {
+                    const objectDrawPromises = objectItems.map(async (item) => {
                         if (item) {
                             
                             // 캔버스 전체 영역에서의 절대 위치 계산
@@ -1212,7 +1272,7 @@ const TemplateEditPage = () => {
                                     ctx.fillText(label, x, labelY - 4);
                                     
                                 } catch (error) {
-                                    console.error(`objectItem ${index} 그리기 실패:`, error);
+                                    console.error(`그리기 실패:`, error);
                                 }
                             }
                         }
@@ -1233,7 +1293,7 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 위치를 픽셀로 변환하는 함수
-    const _convertTextPositionToPixels = (textItem: TextItem, targetWidth: number, targetHeight: number) => {
+    /*const _convertTextPositionToPixels = (textItem: TextItem, targetWidth: number, targetHeight: number) => {
         let x = Number(textItem.x);
         let y = Number(textItem.y);
         
@@ -1246,7 +1306,7 @@ const TemplateEditPage = () => {
         }
         
         return { x, y };
-    };
+    };*/
 
     // 미리보기 핸들러
     const handlePreview = async () => {
@@ -1260,7 +1320,7 @@ const TemplateEditPage = () => {
                 alert('미리보기 생성에 실패했습니다.');
             }
         } catch (error) {
-            alert('미리보기 생성 중 오류가 발생했습니다.');
+            alert('미리보기 생성 중 오류가 발생했습니다. , 에러 : '+error);
         }
     };
 
@@ -1277,12 +1337,12 @@ const TemplateEditPage = () => {
     };
 
     // 섹션 제목 편집 핸들러
-    const handleSectionNameEdit = (sectionId: string, currentName: string) => {
+    /*const handleSectionNameEdit = (sectionId: string, currentName: string) => {
         setEditingSectionId(sectionId);
         setEditingSectionName(currentName);
-    };
+    };*/
 
-    const handleSectionNameSave = () => {
+    /*const handleSectionNameSave = () => {
         if (editingSectionId && editingSectionName.trim()) {
             setSteps(prevSteps => 
                 prevSteps.map(step => ({
@@ -1297,19 +1357,19 @@ const TemplateEditPage = () => {
         }
         setEditingSectionId(null);
         setEditingSectionName('');
-    };
+    };*/
 
-    const handleSectionNameKeyPress = (e: React.KeyboardEvent) => {
+    /*const handleSectionNameKeyPress = (e: React.KeyboardEvent) => {
         if (e.key === 'Enter') {
             handleSectionNameSave();
         } else if (e.key === 'Escape') {
             setEditingSectionId(null);
             setEditingSectionName('');
         }
-    };
+    };*/
 
     // 섹션 기본 이름 가져오기
-    const getDefaultSectionName = (sectionId: string) => {
+    /*const getDefaultSectionName = (sectionId: string) => {
         const names: { [key: string]: string } = {
             'main': '6×6 메인공간',
             'area-1': '6×3 좌측구역',
@@ -1323,7 +1383,7 @@ const TemplateEditPage = () => {
             'bottom-right': '3×3 하단우측',
         };
         return names[sectionId] || sectionId;
-    };
+    };*/
 
     // 동적 텍스트 박스 위치 계산 (아코디언 방식)
     const calculateTextPositions = () => {
@@ -1344,7 +1404,7 @@ const TemplateEditPage = () => {
             const group = groups[xPos];
             let currentY = group[0].baseY;
             
-            group.forEach((item, groupIndex) => {
+            group.forEach((item) => {
                 const textItem = textItems[item.index];
                 const baseHeight = 15; // 기본 텍스트 박스 높이 (%)
                 const margin = 3; // 박스 간 여백 (%)
@@ -1435,7 +1495,7 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 추가 핸들러 수정 - 스텝별 정해진 위치에 배치
-    const handleAddText = () => {
+    /*const handleAddText = () => {
         // 속성 탭으로 이동
         setActiveTab('attributes');
         
@@ -1447,7 +1507,7 @@ const TemplateEditPage = () => {
             setSelectedTextItem('placeholder');
         }
         setSelectedObjectItem(null);
-    };
+    };*/
 
     // 텍스트 편집 시작
     const handleTextEdit = (textId: string) => {
@@ -1472,9 +1532,9 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 삭제
-    const handleTextDelete = (textId: string) => {
+    /*const handleTextDelete = (textId: string) => {
         setTextItems(prev => prev.filter(item => item.id !== textId));
-    };
+    };*/
 
     // ESC 키로 모달 닫기
     useEffect(() => {
@@ -1657,8 +1717,10 @@ const TemplateEditPage = () => {
         };
     }, [isDraggingObjectItem, draggedObjectItem, dragOffset]);
 
+    type Sanitizable = string | number | boolean | null | undefined | Sanitizable[] | { [key: string]: Sanitizable };
+
     // 데이터 정리 및 보안 검증 함수
-    const sanitizeData = (data: any): any => {
+    const sanitizeData = (data: Sanitizable): Sanitizable => {
         if (typeof data === 'string') {
             // JSON 문자열인지 확인
             let isJsonString = false;
@@ -1701,7 +1763,7 @@ const TemplateEditPage = () => {
         }
         
         if (data && typeof data === 'object') {
-            const cleanedObj: any = {};
+            const cleanedObj: { [key: string]: Sanitizable } = {};
             Object.keys(data).forEach(key => {
                 cleanedObj[key] = sanitizeData(data[key]);
             });
@@ -1839,7 +1901,7 @@ const TemplateEditPage = () => {
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
-            const result = await response.json();
+            //const result = await response.json();
             
             alert('템플릿이 성공적으로 수정되었습니다!');
             navigate('/dashboard');
@@ -1941,7 +2003,7 @@ const TemplateEditPage = () => {
                 throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
-            const responseData = await response.json();
+            //const responseData = await response.json();
             
             alert('템플릿이 성공적으로 저장되었습니다!');
 
@@ -2370,7 +2432,7 @@ const TemplateEditPage = () => {
                         })}
                         
                         {/* 오브젝트 아이템들 - 절대 좌표로 표시 */}
-                        {objectItems.map((item, index) => {
+                        {objectItems.map((item) => {
                             return (
                                 <div
                                     key={item.id}

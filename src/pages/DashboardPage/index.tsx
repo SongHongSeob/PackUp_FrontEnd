@@ -197,13 +197,7 @@ const DashboardPage = () => {
                 page: targetPage,
                 sort: getAlignValue(sortOption)
             };
-
-            // 전체가 아닌 경우에만 category 필드 추가
-            if (categoryValue) {
-                requestBody.cateNo = categoryValue;
-            }
-
-            console.log('API 요청:', requestBody);
+            if (categoryValue) requestBody.cateNo = categoryValue;
 
             const response = await fetch("http://localhost:8080/temp/getUserTemplateDataList", {
                 method: 'POST',
@@ -214,17 +208,12 @@ const DashboardPage = () => {
                 body: JSON.stringify(requestBody)
             });
 
-            if (!response.ok) {
-                throw new Error('템플릿 불러오기 실패');
-            }
+            if (!response.ok) throw new Error('템플릿 불러오기 실패');
 
             const responseData = await response.json();
-            console.log('API 응답:', responseData);
-
             const templates = responseData.templateDataList || [];
             const templateCntList: TemplateCntList = responseData.templateCntList;
 
-            // 카테고리 개수 업데이트 (첫 페이지일 때만)
             if (targetPage === 1 && templateCntList) {
                 setCategoryCounts({
                     전체: templateCntList.totalCnt,
@@ -233,17 +222,14 @@ const DashboardPage = () => {
                     생활: templateCntList.totalDailyCnt,
                     여행: templateCntList.totalTripCnt,
                 });
-                
-                // 현재 선택된 카테고리의 전체 템플릿 개수 저장
                 const currentCategoryTotal = selectedCategory === "전체" ? templateCntList.totalCnt :
                     selectedCategory === "즐겨찾기" ? templateCntList.totalFavoriteCnt :
                     selectedCategory === "업무" ? templateCntList.totalOfficeCnt :
                     selectedCategory === "생활" ? templateCntList.totalDailyCnt :
                     selectedCategory === "여행" ? templateCntList.totalTripCnt : 0;
-                
                 setTotalTemplateCount(currentCategoryTotal);
-                console.log(`카테고리 "${selectedCategory}"의 전체 템플릿 개수:`, currentCategoryTotal);
             }
+
             const convertedTemplates = templates.map((template: ApiTemplate) => ({
                 templateNo: template.templateNo,
                 templateNm: template.templateNm,
@@ -254,7 +240,6 @@ const DashboardPage = () => {
                 thumbnail: "https://core-cdn-fe.toss.im/image/optimize/?src=https://blog-cdn.tosspayments.com/wp-content/uploads/2021/08/28011146/semo9.png?&w=3840&q=75"
             }));
 
-            // 첫 페이지이거나 리셋인 경우 새로 설정, 아니면 기존 데이터에 추가
             if (isReset || targetPage === 1) {
                 setAllTemplates(convertedTemplates);
                 setDisplayedTemplateCount(convertedTemplates.length);
@@ -264,28 +249,6 @@ const DashboardPage = () => {
             }
 
             setCurrentPage(targetPage);
-            
-            // 화면 구성 템플릿 개수 로깅
-            const newDisplayedCount = isReset || targetPage === 1 ? 
-                convertedTemplates.length : 
-                displayedTemplateCount + convertedTemplates.length;
-            
-            // 첫 페이지인 경우 계산된 값 사용, 아니면 기존 totalTemplateCount 사용
-            let currentTotal = totalTemplateCount;
-            if (targetPage === 1 && templateCntList) {
-                currentTotal = selectedCategory === "전체" ? templateCntList.totalCnt :
-                    selectedCategory === "즐겨찾기" ? templateCntList.totalFavoriteCnt :
-                    selectedCategory === "업무" ? templateCntList.totalOfficeCnt :
-                    selectedCategory === "생활" ? templateCntList.totalDailyCnt :
-                    selectedCategory === "여행" ? templateCntList.totalTripCnt : 0;
-            }
-                
-            console.log(`=== 페이지 ${targetPage} 로딩 완료 ===`);
-            console.log(`새로 가져온 템플릿: ${convertedTemplates.length}개`);
-            console.log(`기존 화면 템플릿: ${displayedTemplateCount}개`);
-            console.log(`계산된 총 화면 템플릿: ${newDisplayedCount}개`);
-            console.log(`카테고리 전체 개수: ${currentTotal}개`);
-            console.log(`allTemplates.length: ${isReset || targetPage === 1 ? convertedTemplates.length : allTemplates.length + convertedTemplates.length}개`);
 
         } catch (err) {
             console.error("템플릿 불러오기 실패:", err);
@@ -305,7 +268,7 @@ const DashboardPage = () => {
         setTotalTemplateCount(0); // 카테고리 변경 시 전체 개수 초기화
         setDisplayedTemplateCount(0); // 카테고리 변경 시 화면 구성 개수 초기화
         fetchTemplates(undefined, 1, true);
-    }, [selectedCategory, selectedAlign]);
+    }, [selectedCategory, selectedAlign, fetchTemplates]);
 
     // displayedTemplateCount와 totalTemplateCount 상태 변경 시 hasMore 업데이트 및 로깅
     useEffect(() => {
