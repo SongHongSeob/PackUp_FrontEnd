@@ -1,8 +1,7 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import html2canvas from 'html2canvas';
 import Button from '../../components/Button';
-import { ArrowLeftIcon, AddIcon } from '../../assets';
+import { ArrowLeftIcon } from '../../assets';
 import CategorySelectModal from './components/CategorySelectModal';
 import StepSelectModal from './components/StepSelectModal';
 import BackgroundSelectModal from './components/BackgroundSelectModal';
@@ -19,155 +18,6 @@ import type {
 } from './types';
 import './TemplateEditPage.css';
 
-// 텍스트 아이템 컴포넌트
-interface TextItemComponentProps {
-    textItem: TextItem;
-    onEdit: () => void;
-    onSave: (content: string) => void;
-    onDelete: () => void;
-    onDragStart: () => void;
-    onDragEnd: () => void;
-    onMove: (x: number, y: number) => void;
-}
-
-
-const TextItemComponent: React.FC<TextItemComponentProps> = ({
-    textItem,
-    onEdit,
-    onSave,
-    onDelete,
-    onDragStart,
-    onDragEnd,
-    onMove
-}) => {
-    const [editContent, setEditContent] = useState(textItem.content);
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [isSelected, setIsSelected] = useState(false);
-
-    const handleKeyPress = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && e.ctrlKey) {
-            // Ctrl + Enter로 저장 (일반 Enter는 줄바꿈)
-            onSave(editContent);
-        } else if (e.key === 'Escape') {
-            setEditContent(textItem.content);
-            setIsExpanded(false);
-            onSave(textItem.content);
-        }
-    };
-
-    const handleDeleteClick = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (window.confirm('이 텍스트를 삭제하시겠습니까?')) {
-            onDelete();
-        }
-    };
-
-    const handleClick = () => {
-        setIsSelected(true);
-        onEdit();
-    };
-
-    const handleBlur = () => {
-        setIsSelected(false);
-        setIsExpanded(false);
-        onSave(editContent);
-    };
-
-    const toggleExpand = () => {
-        setIsExpanded(!isExpanded);
-    };
-
-    // 텍스트가 박스 크기를 넘는지 확인
-    const isTextOverflow = textItem.content && textItem.content.length > 20;
-
-    return (
-        <div
-            className="absolute select-none z-20 group"
-            style={{
-                left: textItem.x,
-                top: textItem.y,
-            }}
-        >
-            {textItem.isEditing ? (
-                <div className="relative">
-                    <textarea
-                        value={editContent}
-                        onChange={(e) => setEditContent(e.target.value)}
-                        onKeyDown={handleKeyPress}
-                        onBlur={handleBlur}
-                        placeholder="텍스트를 입력하세요&#10;Ctrl+Enter: 저장, ESC: 취소"
-                        className="bg-black text-white border-2 border-purple-500 rounded-lg px-3 py-2 outline-none resize-none placeholder-gray-400 overflow-y-auto shadow-lg text-item-isometric"
-                        style={{
-                            width: '180px',
-                            height: '120px',
-                            fontSize: textItem.fontSize,
-                            lineHeight: '1.4',
-                            wordWrap: 'break-word',
-                        }}
-                        autoFocus
-                    />
-                    <button
-                        onClick={handleDeleteClick}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center text-sm font-bold transition-colors"
-                        title="삭제"
-                    >
-                        ×
-                    </button>
-                </div>
-            ) : (
-                <div className="relative">
-                    <div
-                        onClick={handleClick}
-                        className={`border-2 rounded-lg px-3 py-2 shadow-md transition-all cursor-text overflow-hidden text-item-isometric ${
-                            isSelected 
-                                ? 'text-item-selected' 
-                                : textItem.content 
-                                    ? 'text-item-normal' 
-                                    : 'text-item-disabled'
-                        }`}
-                        style={{
-                            width: '180px',
-                            height: '120px',
-                            fontSize: textItem.fontSize,
-                            lineHeight: '1.4',
-                            wordWrap: 'break-word',
-                            whiteSpace: 'pre-wrap',
-                        }}
-                        title="클릭하여 편집 (ESC: 취소)"
-                    >
-                        {textItem.content ? (
-                            <div className={`${!isExpanded && isTextOverflow ? 'line-clamp-3' : ''}`}>
-                                {textItem.content}
-                            </div>
-                        ) : (
-                            <div className="flex items-center justify-center h-full text-center text-gray-400">
-                                텍스트를 입력하세요
-                            </div>
-                        )}
-                    </div>
-                    
-                    {/* 더보기 버튼 */}
-                    {isTextOverflow && !isExpanded && (
-                        <button
-                            onClick={toggleExpand}
-                            className="more-button"
-                        >
-                            더보기
-                        </button>
-                    )}
-                    
-                    <button
-                        onClick={handleDeleteClick}
-                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full items-center justify-center text-sm font-bold transition-colors opacity-0 group-hover:opacity-100 hidden group-hover:flex"
-                        title="삭제"
-                    >
-                        ×
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-};
 
 const TemplateEditPage = () => {
     const { id, presetId } = useParams<{ id?: string; presetId?: string }>(); // URL 파라미터들
@@ -235,13 +85,13 @@ const TemplateEditPage = () => {
                 
                 if (gridX >= 0 && gridX < 8 && gridY >= 0 && gridY < 8) {
                     const gridItem = {
-                        type: 'icon' as const,
+                        type: 'object' as const,
                         id: `obj_${stepIndex}_${objIndex}`,
                         label: obj.objNm || obj.label || obj.name || `오브젝트${objIndex}`,
                         x: gridX,
                         y: gridY,
-                        category: obj.cateNo || obj.category || 1,
-                        cateNo: obj.cateNo || obj.category || 1
+                        content: obj.content || '',
+                        stepId: `step${stepIndex + 1}`
                     };
                     
                     newStep.grid[gridY][gridX] = gridItem;
@@ -265,7 +115,7 @@ const TemplateEditPage = () => {
                     x: textData.stepTextX || textData.x || 0,
                     y: textData.stepTextY || textData.y || 0,
                     isEditing: false,
-                    fontSize: '14px',
+                    fontSize: 14,
                     color: '#000000'
                 });
             });
@@ -409,7 +259,7 @@ const TemplateEditPage = () => {
                                                 x: textData.stepTextX || 0,
                                                 y: textData.stepTextY || 0,
                                                 isEditing: false,
-                                                fontSize: '14px',
+                                                fontSize: 14,
                                                 color: '#000000'
                                             };
                                             
@@ -490,7 +340,7 @@ const TemplateEditPage = () => {
                                             x: textData.stepTextX || 0,
                                             y: textData.stepTextY || 0,
                                             isEditing: false,
-                                            fontSize: '14px',
+                                            fontSize: 14,
                                             color: '#000000'
                                         };
                                         
@@ -514,8 +364,8 @@ const TemplateEditPage = () => {
                     setSelectedStep('step1');
                     setSelectedStepId('step1');
                         
-                        finalSteps.forEach((step, index) => {
-                            const itemCount = step.grid.flat().filter(item => item !== null).length;
+                        finalSteps.forEach((step, _index) => {
+                            const _itemCount = step.grid.flat().filter(item => item !== null).length;
                         });
                     }
                 
@@ -651,14 +501,14 @@ const TemplateEditPage = () => {
     ]);
     const [currentStepCount, setCurrentStepCount] = useState(1);
     const [selectedStep, setSelectedStep] = useState<string>('step1');
-    const [selectedElement, setSelectedElement] = useState<GridItem | null>(null);
-    const [draggedItem, setDraggedItem] = useState<GridItem | null>(null);
-    const [dragOverPosition, setDragOverPosition] = useState<{x: number, y: number} | null>(null);
+    const [selectedElement, _setSelectedElement] = useState<GridItem | null>(null);
+    const [_draggedItem, setDraggedItem] = useState<GridItem | null>(null);
+    const [_dragOverPosition, setDragOverPosition] = useState<{x: number, y: number} | null>(null);
     const [currentCategory, setCurrentCategory] = useState<Category>('여행'); // 상단 카테고리 선택 (저장 시 사용)
     const [objectCategory, setObjectCategory] = useState<Category>('여행'); // 우측 오브젝트 선택용 카테고리
     const [backgroundImage, setBackgroundImage] = useState('/cate-1-step-1.svg');
     
-    const [showGrid, setShowGrid] = useState(false);
+    const [_showGrid, setShowGrid] = useState(false);
     const [activeTab, setActiveTab] = useState<ActiveTab>('preparations');
     const [recommendationTab, setRecommendationTab] = useState<RecommendationTab>('recommended');
     
@@ -803,13 +653,13 @@ const TemplateEditPage = () => {
     };
 
     // 스텝 선택
-    const selectStep = (stepId: string) => {
+    const _selectStep = (stepId: string) => {
         setSelectedStep(stepId);
         setSelectedStepId(stepId);
     };
 
     // 아이콘 드래그 앤 드롭 핸들러 수정
-    const handleDrop = (e: React.DragEvent, stepId: string, sectionId: string, colIndex: number, rowIndex: number) => {
+    const _handleDrop = (e: React.DragEvent, stepId: string, sectionId: string, colIndex: number, rowIndex: number) => {
         e.preventDefault();
         
         try {
@@ -859,19 +709,19 @@ const TemplateEditPage = () => {
     };
 
     // 아이콘 드래그 시작 (기존 함수 제거)
-    const handleIconDragStart = (e: React.DragEvent, item: GridItem) => {
+    const _handleIconDragStart = (e: React.DragEvent, item: GridItem) => {
         e.dataTransfer.setData('application/json', JSON.stringify(item));
         e.dataTransfer.effectAllowed = 'move';
     };
 
     // 아이콘 드래그 오버
-    const handleDragOver = (e: React.DragEvent, colIndex: number, rowIndex: number) => {
+    const _handleDragOver = (e: React.DragEvent, _colIndex: number, _rowIndex: number) => {
         e.preventDefault();
         e.dataTransfer.dropEffect = 'move';
     };
 
     // 드래그 종료 (기존 함수 제거)
-    const handleIconDragEnd = () => {
+    const _handleIconDragEnd = () => {
         setDraggedItem(null);
         setDragOverPosition(null);
         setShowGrid(false);
@@ -955,7 +805,7 @@ const TemplateEditPage = () => {
     };
 
     // 오브젝트 배치 가능 여부 확인
-    const canPlaceObject = (x: number, y: number) => {
+    const _canPlaceObject = (x: number, y: number) => {
         const currentStep = steps.find(step => step.id === selectedStep);
         if (currentStep && currentStep.grid[y] && currentStep.grid[y][x] === null) {
             return true;
@@ -1203,10 +1053,10 @@ const TemplateEditPage = () => {
                 }
 
                 // 그리드에 배치된 오브젝트 그리기 (새로운 items 구조 사용)
-                if (currentStep.items && currentStep.items.length > 0) {
+                if (currentStep && currentStep.items && currentStep.items.length > 0) {
                     
                     // 모든 아이콘을 동시에 처리 (자유 배치)
-                    const drawPromises = currentStep.items.map(async (item, index) => {
+                    const drawPromises = currentStep.items.map(async (item, _index) => {
                         if (item) {
                             
                             // 캔버스 전체 영역에서의 절대 위치 계산
@@ -1257,34 +1107,38 @@ const TemplateEditPage = () => {
                                 } catch (error) {
                                     console.error('아이콘 로드 실패, 대체 표시:', item.content, error);
                                     // 이미지 로드 실패 시 대체 표시
-                                    ctx.fillStyle = '#3b82f6';
-                                    ctx.fillRect(x - 40, y - 40, 80, 80);
-                                    
-                                    ctx.fillStyle = '#ffffff';
-                                    ctx.font = '20px Arial';
-                                    ctx.textAlign = 'center';
-                                    ctx.fillText(item.label || '📦', x, y + 8);
+                                    if (ctx) {
+                                        ctx.fillStyle = '#3b82f6';
+                                        ctx.fillRect(x - 40, y - 40, 80, 80);
+                                        
+                                        ctx.fillStyle = '#ffffff';
+                                        ctx.font = '20px Arial';
+                                        ctx.textAlign = 'center';
+                                        ctx.fillText(item.label || '📦', x, y + 8);
+                                    }
                                     
                                     // 대체 표시에도 라벨 추가
-                                    const label = item.label || '아이콘';
-                                    const labelY = y + 40 + 20; // 아이콘 아래 20px
-                                    
-                                    // 라벨 배경 (검은색 둥근 사각형)
-                                    ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                                    const labelPadding = 8;
-                                    const labelHeight = 20;
-                                    const labelWidth = ctx.measureText(label).width + (labelPadding * 2);
-                                    const labelX = x - labelWidth / 2;
-                                    
-                                    ctx.beginPath();
-                                    ctx.roundRect(labelX, labelY - 16, labelWidth, labelHeight, 4);
-                                    ctx.fill();
-                                    
-                                    // 라벨 텍스트 (흰색)
-                                    ctx.fillStyle = '#ffffff';
-                                    ctx.font = '12px Arial';
-                                    ctx.textAlign = 'center';
-                                    ctx.fillText(label, x, labelY - 4);
+                                    if (ctx) {
+                                        const label = item.label || '아이콘';
+                                        const labelY = y + 40 + 20; // 아이콘 아래 20px
+                                        
+                                        // 라벨 배경 (검은색 둥근 사각형)
+                                        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+                                        const labelPadding = 8;
+                                        const labelHeight = 20;
+                                        const labelWidth = ctx.measureText(label).width + (labelPadding * 2);
+                                        const labelX = x - labelWidth / 2;
+                                        
+                                        ctx.beginPath();
+                                        ctx.roundRect(labelX, labelY - 16, labelWidth, labelHeight, 4);
+                                        ctx.fill();
+                                        
+                                        // 라벨 텍스트 (흰색)
+                                        ctx.fillStyle = '#ffffff';
+                                        ctx.font = '12px Arial';
+                                        ctx.textAlign = 'center';
+                                        ctx.fillText(label, x, labelY - 4);
+                                    }
                                 }
                             } else {
                                 // 텍스트 오브젝트 그리기
@@ -1306,7 +1160,7 @@ const TemplateEditPage = () => {
                 // objectItems 그리기 (별도로 관리되는 오브젝트들)
                 if (objectItems && objectItems.length > 0) {
                     
-                    const objectDrawPromises = objectItems.map(async (item, index) => {
+                    const objectDrawPromises = objectItems.map(async (item, _index) => {
                         if (item) {
                             
                             // 캔버스 전체 영역에서의 절대 위치 계산
@@ -1379,7 +1233,7 @@ const TemplateEditPage = () => {
     };
 
     // 텍스트 위치를 픽셀로 변환하는 함수
-    const convertTextPositionToPixels = (textItem: TextItem, targetWidth: number, targetHeight: number) => {
+    const _convertTextPositionToPixels = (textItem: TextItem, targetWidth: number, targetHeight: number) => {
         let x = Number(textItem.x);
         let y = Number(textItem.y);
         

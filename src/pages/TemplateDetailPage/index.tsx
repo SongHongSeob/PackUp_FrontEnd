@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Header from "../../components/Header";
 import Button from "../../components/Button";
@@ -49,8 +49,7 @@ const TemplateDetailPage = () => {
     const [currentStepCount, setCurrentStepCount] = useState<number>(1);
     const [backgroundImage, setBackgroundImage] = useState('/cate-1-step-1.svg');
     
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [steps, setSteps] = useState<Step[]>([]);
+    const [, setSteps] = useState<Step[]>([]);
     const [textItems, setTextItems] = useState<TextItem[]>([]);
     const [objectItems, setObjectItems] = useState<{
         id: string;
@@ -63,8 +62,7 @@ const TemplateDetailPage = () => {
         content: string;
     }[]>([]);
     
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [selectedStep, setSelectedStep] = useState<string>('step1');
+    const [, setSelectedStep] = useState<string>('step1');
     const [selectedStepId, setSelectedStepId] = useState<string>('step1');
     
     // 모달 상태
@@ -98,7 +96,7 @@ const TemplateDetailPage = () => {
             }
 
             const response = await fetch('http://localhost:8080/temp/templateDelete', {
-                method: 'DELETE',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
@@ -250,12 +248,12 @@ const TemplateDetailPage = () => {
     };
     
     const isTimeSet = selectedTime.hour !== 0 || selectedTime.minute !== 0 || (selectedTime.hour === 0 && selectedTime.meridiem === '오전');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const formattedTime = isTimeSet
         ? `${selectedTime.meridiem} ${selectedTime.hour === 0 ? 12 : selectedTime.hour}:${selectedTime.minute.toString().padStart(2, "0")}`
         : "없음";
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    void formattedTime; // 디버깅용
     const formattedChannels = selectedChannels.length > 0 ? selectedChannels.join(", ") : "없음";
+    void formattedChannels; // 디버깅용
     
     const handleSaveNotification = async () => {
         try {
@@ -266,7 +264,7 @@ const TemplateDetailPage = () => {
             }
 
             // 요일 매핑
-            const dayMapping = {
+            const dayMapping: { [key: string]: string } = {
                 '월': 'MON',
                 '화': 'TUE', 
                 '수': 'WED',
@@ -411,7 +409,16 @@ const TemplateDetailPage = () => {
                     if (templateData.stepsList && Array.isArray(templateData.stepsList)) {
                         const finalSteps: Step[] = [];
                         const finalTextItems: TextItem[] = [];
-                        const finalObjectItems: Record<string, unknown>[] = [];
+                        const finalObjectItems: {
+                            id: string;
+                            label: string;
+                            x: number;
+                            y: number;
+                            category: number;
+                            cateNo: number;
+                            type: string;
+                            content: string;
+                        }[] = [];
 
                         templateData.stepsList.forEach((stepData: Record<string, unknown>, stepIndex: number) => {
                             // 스텝 생성
@@ -426,10 +433,10 @@ const TemplateDetailPage = () => {
                             // 오브젝트 처리
                             if (stepData.stepObjList && Array.isArray(stepData.stepObjList)) {
                                 stepData.stepObjList.forEach((obj: Record<string, unknown>, objIndex: number) => {
-                                    const objX = obj.objX || 0;
-                                    const objY = obj.objY || 0;
-                                    const objNm = obj.objNm || `오브젝트${objIndex}`;
-                                    const cateNo = obj.cateNo || 1;
+                                    const objX = Number(obj.objX || 0);
+                                    const objY = Number(obj.objY || 0);
+                                    const objNm = String(obj.objNm || `오브젝트${objIndex}`);
+                                    const cateNo = Number(obj.cateNo || 1);
                                     
                                     // 카테고리별 이미지 매핑
                                     const getCategoryImage = (cateNo: number, label: string) => {
@@ -463,12 +470,12 @@ const TemplateDetailPage = () => {
                                 stepData.stepTextList.forEach((textData: Record<string, unknown>, textIndex: number) => {
                                     const textItem: TextItem = {
                                         id: `text_${stepIndex}_${textIndex}`,
-                                        content: textData.text || textData.stepTextContent || '',
-                                        x: textData.stepTextX || textData.x || 0,
-                                        y: textData.stepTextY || textData.y || 0,
+                                        content: String(textData.text || textData.stepTextContent || ''),
+                                        x: Number(textData.stepTextX || textData.x || 0),
+                                        y: Number(textData.stepTextY || textData.y || 0),
                                         isEditing: false,
-                                        fontSize: textData.stepTextSize || 16,
-                                        color: textData.stepTextColor || '#000000',
+                                        fontSize: Number(textData.stepTextSize || 16),
+                                        color: String(textData.stepTextColor || '#000000'),
                                         isExpanded: false
                                     };
                                     finalTextItems.push(textItem);
@@ -991,7 +998,7 @@ const TemplateDetailPage = () => {
                                         setTempTime({ 
                                             ...selectedTime, 
                                             hour: selectedTime.hour === 0 ? 1 : selectedTime.hour 
-                                        });
+                                        } as { hour: number; minute: number; meridiem: '오전' | '오후' });
                                         setShowTimeSelect(true);
                                     }} className="cursor-pointer flex items-center gap-2">
                                         <span className={`font-pretendard text-[16px] font-medium leading-none ${selectedTime.hour === 0 && selectedTime.minute === 0 ? "text-[#949494]" : "text-[#5736FF]"}`}>
