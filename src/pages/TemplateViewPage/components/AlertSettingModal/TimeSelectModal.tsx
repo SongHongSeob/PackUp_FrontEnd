@@ -12,7 +12,7 @@ const getButtonClass = (selected: boolean) => `${baseButtonClass} ${selected ? "
 const TimeSelectModal = () => {
     const {
         selectedTime,
-        setSelectedTime,
+        //setSelectedTime,
         setShowTimeSelect
     } = useAlertSettingStore();
 
@@ -20,13 +20,13 @@ const TimeSelectModal = () => {
     const [localHour, setLocalHour] = useState<number>(selectedTime.hour);
     const [localMinute, setLocalMinute] = useState<number>(selectedTime.minute);
 
-    const updateTime = (meridiem: "오전" | "오후", hour: number, minute: number) => {
+    /*const updateTime = (meridiem: "오전" | "오후", hour: number, minute: number) => {
         setSelectedTime({
             meridiem,
             hour,
             minute
         });
-    };
+    };*/
 
 
     const handleComplete = () => {
