@@ -20,6 +20,7 @@ import './TemplateEditPage.css';
 
 // 오브젝트 아이템
 interface StepObjectItem {
+  id?: string;
   objX?: number;
   objY?: number;
   x?: number;
@@ -170,7 +171,7 @@ const convertDataToSteps = (
                     return;
                 }
 
-                const response = await fetch('http://localhost:8080/temp/getDetailData', {
+                const response = await fetch('http://3.35.147.68:8080/temp/getDetailData', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -605,6 +606,7 @@ const convertDataToSteps = (
         cateNo: number;
         type: string;
         content: string;
+        stepId: string;
     }[]>([]);
     
     // 모달 상태
@@ -627,7 +629,7 @@ const convertDataToSteps = (
     
     // 객체 복제/삭제, 드래그 앤 드롭, 호버 효과, 선택 표시를 위한 상태들
     const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
-    const [contextMenuObject, setContextMenuObject] = useState<GridItem | null>(null);
+    const [contextMenuObject, setContextMenuObject] = useState<GridItem | StepObjectItem | null>(null);
     const [showContextMenu, setShowContextMenu] = useState(false);
     
     // 드래그 앤 드롭 상태
@@ -923,10 +925,15 @@ const convertDataToSteps = (
 
     const duplicateObjectItem = (item: StepObjectItem) => {
         const newItem = {
-            ...item,
-            id: `${item.id}_copy_${Date.now()}`,
-            x: Math.min(item.x + 5, 95),
-            y: Math.min(item.y + 5, 95)
+            id: `${item.id || 'item'}_copy_${Date.now()}`,
+            label: item.label || item.objNm || '',
+            x: Math.min((item.x || 0) + 5, 95),
+            y: Math.min((item.y || 0) + 5, 95),
+            category: 0,
+            cateNo: 0,
+            type: 'object',
+            content: item.content || '',
+            stepId: selectedStep
         };
         
         setObjectItems(prev => [...prev, newItem]);
@@ -934,7 +941,7 @@ const convertDataToSteps = (
     };
 
     const deleteObjectItem = (item: StepObjectItem) => {
-        setObjectItems(prev => prev.filter(obj => obj.id !== item.id));
+        setObjectItems(prev => prev.filter(obj => obj.id !== (item.id || '')));
         setShowContextMenu(false);
     };
 
@@ -1871,7 +1878,7 @@ const convertDataToSteps = (
             const stepsListJson = JSON.stringify(templateUpdateData.stepsList);
             
             formData.append('templateNo', templateUpdateData.templateNo.toString());
-            formData.append('templateNm', templateUpdateData.templateNm);
+            formData.append('templateNm', templateUpdateData.templateNm || '');
             formData.append('cateNo', templateUpdateData.cateNo.toString());
             formData.append('step', templateUpdateData.step.toString());
             formData.append('stepsList', stepsListJson);
@@ -1887,7 +1894,7 @@ const convertDataToSteps = (
                 return;
             }
 
-            const response = await fetch('http://localhost:8080/temp/templateUpdate', {
+            const response = await fetch('http://3.35.147.68:8080/temp/templateUpdate', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -1973,7 +1980,7 @@ const convertDataToSteps = (
             const stepsListJson = JSON.stringify(templateSaveData.stepsList);
                         
             // 텍스트 데이터 추가
-            formData.append('templateNm', templateSaveData.templateNm);
+            formData.append('templateNm', templateSaveData.templateNm || '');
             formData.append('cateNo', templateSaveData.cateNo.toString());
             formData.append('step', templateSaveData.step.toString()); // 스텝 개수 (1,2,3,4)
             formData.append('stepsList', stepsListJson);
@@ -1983,7 +1990,7 @@ const convertDataToSteps = (
                 formData.append('imgFile', previewImageBlob, 'template-preview.jpg');
             }
 
-            const apiUrl = 'http://localhost:8080/temp/templateSave';
+            const apiUrl = 'http://3.35.147.68:8080/temp/templateSave';
             
             // 토큰 가져오기
             const token = localStorage.getItem('token') || '';
