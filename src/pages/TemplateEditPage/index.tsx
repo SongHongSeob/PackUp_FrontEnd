@@ -595,7 +595,6 @@ const convertDataToSteps = (
     });
     const [isEditingName, setIsEditingName] = useState(false);
     const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
-    const [setEditingSectionName] = useState('');
     const [textItems, setTextItems] = useState<TextItem[]>([]);
     
     // 오브젝트 아이템들을 절대 좌표로 관리
