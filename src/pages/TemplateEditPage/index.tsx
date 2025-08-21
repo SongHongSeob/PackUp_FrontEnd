@@ -245,13 +245,15 @@ const convertDataToSteps = (
                     const finalTextItems: TextItem[] = [];
                     const finalObjectItems: {
                         id: string;
-                        label: string;
+                        label?: string;
                         x: number;
                         y: number;
-                        category: number;
-                        cateNo: number;
-                        type: string;
+                        category?: string;
+                        cateNo?: number;
+                        type: 'object' | 'text';
                         content: string;
+                        stepId: string;
+                        sectionId?: string;
                         }[] = [];
                         
                         if (templateData.stepsList) {
@@ -308,10 +310,10 @@ const convertDataToSteps = (
                                                 label: objNm,
                                                 x: absoluteX,
                                                 y: absoluteY,
-                                                category: cateNo,
                                                 cateNo: cateNo,
-                                                type: 'object',
-                                                content: getCategoryImage(cateNo, objNm)
+                                                type: 'object' as const,
+                                                content: getCategoryImage(cateNo, objNm),
+                                                stepId: `step${stepIndex + 1}`
                                             };
                                             
                                             finalObjectItems.push(objectItem);
@@ -389,10 +391,10 @@ const convertDataToSteps = (
                                             label: objNm,
                                             x: absoluteX,
                                             y: absoluteY,
-                                            category: cateNo,
                                             cateNo: cateNo,
-                                            type: 'object',
-                                            content: getCategoryImage(cateNo, objNm)
+                                            type: 'object' as const,
+                                            content: getCategoryImage(cateNo, objNm),
+                                            stepId: 'step1'
                                         };
                                         
                                         finalObjectItems.push(objectItem);
@@ -599,14 +601,15 @@ const convertDataToSteps = (
     // 오브젝트 아이템들을 절대 좌표로 관리
     const [objectItems, setObjectItems] = useState<{
         id: string;
-        label: string;
+        label?: string;
         x: number;
         y: number;
-        category: number;
-        cateNo: number;
-        type: string;
+        category?: string;
+        cateNo?: number;
+        type: 'object' | 'text';
         content: string;
         stepId: string;
+        sectionId?: string;
     }[]>([]);
     
     // 모달 상태
@@ -929,9 +932,8 @@ const convertDataToSteps = (
             label: item.label || item.objNm || '',
             x: Math.min((item.x || 0) + 5, 95),
             y: Math.min((item.y || 0) + 5, 95),
-            category: 0,
             cateNo: 0,
-            type: 'object',
+            type: 'object' as const,
             content: item.content || '',
             stepId: selectedStep
         };
@@ -1556,7 +1558,6 @@ const convertDataToSteps = (
                 }
                 if (editingSectionId) {
                     setEditingSectionId(null);
-                    setEditingSectionName('');
                 }
             }
         };
@@ -1878,7 +1879,11 @@ const convertDataToSteps = (
             const stepsListJson = JSON.stringify(templateUpdateData.stepsList);
             
             formData.append('templateNo', templateUpdateData.templateNo.toString());
-            formData.append('templateNm', templateUpdateData.templateNm || '');
+            formData.append('templateNm', 
+                                typeof templateUpdateData.templateNm === 'string'
+                                    ? templateUpdateData.templateNm
+                                    : JSON.stringify(templateUpdateData.templateNm)
+                                );
             formData.append('cateNo', templateUpdateData.cateNo.toString());
             formData.append('step', templateUpdateData.step.toString());
             formData.append('stepsList', stepsListJson);
@@ -1980,7 +1985,11 @@ const convertDataToSteps = (
             const stepsListJson = JSON.stringify(templateSaveData.stepsList);
                         
             // 텍스트 데이터 추가
-            formData.append('templateNm', templateSaveData.templateNm || '');
+            formData.append('templateNm', 
+                        typeof templateSaveData.templateNm === 'string'
+                            ? templateSaveData.templateNm
+                            : JSON.stringify(templateSaveData.templateNm)
+                        );
             formData.append('cateNo', templateSaveData.cateNo.toString());
             formData.append('step', templateSaveData.step.toString()); // 스텝 개수 (1,2,3,4)
             formData.append('stepsList', stepsListJson);
@@ -3019,10 +3028,10 @@ const convertDataToSteps = (
                         className="w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2"
                         onClick={() => {
                             // objectItems인지 GridItem인지 구분
-                            if (contextMenuObject && 'content' in contextMenuObject && 'type' in contextMenuObject) {
-                                duplicateObjectItem(contextMenuObject);
+                            if (contextMenuObject && 'type' in contextMenuObject && 'stepId' in contextMenuObject) {
+                                duplicateObject(contextMenuObject as GridItem);
                             } else {
-                                duplicateObject(contextMenuObject);
+                                duplicateObjectItem(contextMenuObject as StepObjectItem);
                             }
                         }}
                     >
@@ -3035,10 +3044,10 @@ const convertDataToSteps = (
                         className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-gray-50 flex items-center gap-2"
                         onClick={() => {
                             // objectItems인지 GridItem인지 구분
-                            if (contextMenuObject && 'content' in contextMenuObject && 'type' in contextMenuObject) {
-                                deleteObjectItem(contextMenuObject);
+                            if (contextMenuObject && 'type' in contextMenuObject && 'stepId' in contextMenuObject) {
+                                deleteObject(contextMenuObject as GridItem);
                             } else {
-                                deleteObject(contextMenuObject);
+                                deleteObjectItem(contextMenuObject as StepObjectItem);
                             }
                         }}
                     >
