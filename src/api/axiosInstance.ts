@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'https://packupapi.xyz';
+const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://3.35.147.68:8080';
 
 const instance = axios.create({
     baseURL,
