@@ -283,7 +283,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         <header className='fixed top-0 left-0 z-20 w-full flex h-[76px] px-4 py-2 justify-between items-center flex-shrink-0 border-b border-[#F0F0F0] bg-white tablet:h-[84px] tablet:px-[60px] web:px-[120px]'>
             <div className='w-full max-w-[1200px] mx-auto flex justify-between items-center flex-shrink-0'>
                 {/* 로고 */}
-                <Link to='/dashboard' className='flex items-center gap-2'>
+                <Link to={userId ? '/dashboard' : '/'} className='flex items-center gap-2'>
                     <LogoIcon className='w-6 h-6 aspect-square' />
                     <span className='text-black font-montserrat text-[18px] font-semibold uppercase'>Pack up</span>
                 </Link>
