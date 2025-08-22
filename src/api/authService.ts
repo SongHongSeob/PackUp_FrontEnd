@@ -65,7 +65,7 @@ class AuthService {
    * SNS 로그인 시작 (OAuth2 리다이렉트)
    */
   startSnsLogin(provider: 'google' | 'kakao' | 'naver'): void {
-    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'https://packupapi.xyz';
+    const baseUrl = import.meta.env.VITE_API_BASE_URL || 'http://3.35.147.68:8080';
     window.location.href = `${baseUrl}/oauth2/authorization/${provider}`;
   }
 
