@@ -35,7 +35,7 @@ const LoginForm = () => {
                 userPw: data.password
             };
     
-            const response = await fetch('https://packupapi.xyz/api/lgn/login', {
+            const response = await fetch('http://3.35.147.68:8080/api/lgn/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ const LoginForm = () => {
             
             if (confirmed) {
                 console.log(`${provider.toUpperCase()} 로그인 시작`);
-                window.location.href = `https://packupapi.xyz/oauth2/authorization/${provider}`;
+                window.location.href = `http://3.35.147.68:8080/oauth2/authorization/${provider}`;
             }
         } catch (error) {
             console.error(`${provider} 로그인 오류:`, error);

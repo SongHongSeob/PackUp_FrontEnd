@@ -4,7 +4,7 @@ import DashboardPage from '../pages/DashboardPage';
 import SnsCallback from '../pages/AuthPage/components/SnsCallback';
 import TemplateViewPage from '../pages/TemplateViewPage';
 import TemplateEditPage from '../pages/TemplateEditPage';
-import AgreementDetail from '../pages/Agreements';
+import TemplateDetailPage from '../pages/TemplateDetailPage';
 
 export const routes = [
     { path: '/', element: <LandingPage /> },
@@ -12,6 +12,8 @@ export const routes = [
     { path: 'auth/sns-callback', element: <SnsCallback /> }, // SNS 콜백 라우트 추가
     { path: 'dashboard', element: <DashboardPage /> },
     { path: 'template/:id', element: <TemplateViewPage /> },
+    { path: 'template/:id/detail', element: <TemplateDetailPage /> }, // 상세보기 페이지
     { path: 'template/:id/edit', element: <TemplateEditPage /> },
-    { path: 'agreements/:id', element: <AgreementDetail /> },
+    { path: 'template/new/edit', element: <TemplateEditPage /> }, // 새 템플릿 생성 라우트
+    { path: 'template/preset-:presetId/edit', element: <TemplateEditPage /> }, // 프리셋 템플릿 생성 라우트
 ];

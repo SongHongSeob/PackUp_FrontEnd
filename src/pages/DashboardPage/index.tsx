@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Header";
 import Button from "../../components/Button";
 import { AddIcon } from "../../assets";
@@ -87,7 +87,7 @@ const DUMMY_TEMPLATES: TemplateListItem[] = [
 ];
 
 const DashboardPage = () => {
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
     // 선택된 카테고리 상태
     const [selectedCategory, setSelectedCategory] = useState("전체");
     // 정렬 상태
@@ -112,6 +112,10 @@ const DashboardPage = () => {
     const [currentPage, setCurrentPage] = useState(1);
     // 더 가져올 데이터가 있는지 여부
     const [hasMore, setHasMore] = useState(true);
+    // 현재 선택된 카테고리의 전체 템플릿 개수
+    const [totalTemplateCount, setTotalTemplateCount] = useState(0);
+    // 화면에 구성되는 템플릿의 개수
+    const [displayedTemplateCount, setDisplayedTemplateCount] = useState(0);
 
     // 새 템플릿 버튼 클릭 시 뜨는 모달 상태
     const [isTypeOpen, setIsTypeOpen] = useState(false);
@@ -193,15 +197,9 @@ const DashboardPage = () => {
                 page: targetPage,
                 sort: getAlignValue(sortOption)
             };
+            if (categoryValue) requestBody.cateNo = categoryValue;
 
-            // 전체가 아닌 경우에만 category 필드 추가
-            if (categoryValue) {
-                requestBody.cateNo = categoryValue;
-            }
-
-            console.log('API 요청:', requestBody);
-
-            const response = await fetch("https://packupapi.xyz/temp/getUserTemplateDataList", {
+            const response = await fetch("http://3.35.147.68:8080/temp/getUserTemplateDataList", {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -210,17 +208,12 @@ const DashboardPage = () => {
                 body: JSON.stringify(requestBody)
             });
 
-            if (!response.ok) {
-                throw new Error('템플릿 불러오기 실패');
-            }
+            if (!response.ok) throw new Error('템플릿 불러오기 실패');
 
             const responseData = await response.json();
-            console.log('API 응답:', responseData);
-
             const templates = responseData.templateDataList || [];
             const templateCntList: TemplateCntList = responseData.templateCntList;
 
-            // 카테고리 개수 업데이트 (첫 페이지일 때만)
             if (targetPage === 1 && templateCntList) {
                 setCategoryCounts({
                     전체: templateCntList.totalCnt,
@@ -229,7 +222,14 @@ const DashboardPage = () => {
                     생활: templateCntList.totalDailyCnt,
                     여행: templateCntList.totalTripCnt,
                 });
+                const currentCategoryTotal = selectedCategory === "전체" ? templateCntList.totalCnt :
+                    selectedCategory === "즐겨찾기" ? templateCntList.totalFavoriteCnt :
+                    selectedCategory === "업무" ? templateCntList.totalOfficeCnt :
+                    selectedCategory === "생활" ? templateCntList.totalDailyCnt :
+                    selectedCategory === "여행" ? templateCntList.totalTripCnt : 0;
+                setTotalTemplateCount(currentCategoryTotal);
             }
+
             const convertedTemplates = templates.map((template: ApiTemplate) => ({
                 templateNo: template.templateNo,
                 templateNm: template.templateNm,
@@ -240,15 +240,14 @@ const DashboardPage = () => {
                 thumbnail: "https://core-cdn-fe.toss.im/image/optimize/?src=https://blog-cdn.tosspayments.com/wp-content/uploads/2021/08/28011146/semo9.png?&w=3840&q=75"
             }));
 
-            // 첫 페이지이거나 리셋인 경우 새로 설정, 아니면 기존 데이터에 추가
             if (isReset || targetPage === 1) {
                 setAllTemplates(convertedTemplates);
+                setDisplayedTemplateCount(convertedTemplates.length);
             } else {
                 setAllTemplates(prev => [...prev, ...convertedTemplates]);
+                setDisplayedTemplateCount(prev => prev + convertedTemplates.length);
             }
 
-            // 더 가져올 데이터가 있는지 확인 (가져온 데이터가 8개 미만이면 마지막 페이지)
-            setHasMore(templates.length >= 8);
             setCurrentPage(targetPage);
 
         } catch (err) {
@@ -260,14 +259,26 @@ const DashboardPage = () => {
             setIsLoading(false);
             setIsLoadingMore(false);
         }
-    }, [selectedCategory, selectedAlign, currentPage]);
+    }, [selectedCategory, selectedAlign, currentPage, allTemplates.length, displayedTemplateCount, totalTemplateCount]);
 
     useEffect(() => {
         setCurrentPage(1);
         setAllTemplates([]);
         setHasMore(true);
+        setTotalTemplateCount(0); // 카테고리 변경 시 전체 개수 초기화
+        setDisplayedTemplateCount(0); // 카테고리 변경 시 화면 구성 개수 초기화
         fetchTemplates(undefined, 1, true);
-    }, [selectedCategory, selectedAlign]);
+    }, [selectedCategory, selectedAlign, fetchTemplates]);
+
+    // displayedTemplateCount와 totalTemplateCount 상태 변경 시 hasMore 업데이트 및 로깅
+    useEffect(() => {
+        if (displayedTemplateCount > 0 && totalTemplateCount > 0) {
+            // 상태 업데이트 후 hasMore 설정
+            setHasMore(displayedTemplateCount < totalTemplateCount);
+            console.log(`[상태 업데이트 후] 화면에 표시된 템플릿: ${displayedTemplateCount}개 / 전체: ${totalTemplateCount}개`);
+            console.log(`[상태 업데이트 후] hasMore: ${displayedTemplateCount < totalTemplateCount}`);
+        }
+    }, [displayedTemplateCount, totalTemplateCount]);
 
     // 더보기 버튼 클릭 시 다음 페이지 로드
     const handleLoadMore = () => {
@@ -334,7 +345,8 @@ const DashboardPage = () => {
                 onPick={(type) => {
                     if (type === "new") {
                         setIsTypeOpen(false);
-                        // TODO: navigate 사용해서 신규 템플릿 편집 화면으로 이동
+                        // 신규 템플릿 생성 - 새 템플릿 ID로 편집 페이지로 이동
+                        navigate('/template/new/edit');
                     } else {
                         setIsTypeOpen(false);
                         setIsPresetOpen(true);
@@ -346,8 +358,8 @@ const DashboardPage = () => {
                 onClose={() => setIsPresetOpen(false)}
                 onConfirm={(setId) => {
                     setIsPresetOpen(false);
-                    console.log(setId); // 린트 에러 방지를 위해 임시로 넣어둠
-                    // TODO: navigate 사용해서 간편 템플릿 편집 화면으로 이동
+                    // 간편 템플릿 생성 - 선택한 프리셋으로 편집 페이지로 이동
+                    navigate(`/template/preset-${setId}/edit`);
                 }}
             />
         </div>
