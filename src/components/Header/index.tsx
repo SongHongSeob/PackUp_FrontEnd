@@ -57,7 +57,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
             try {
                 const token = localStorage.getItem('token');
 
-                const response = await fetch("http://3.35.147.68:8080/api/api/user", {
+                const response = await fetch("http://3.35.147.68:8080/user/getCurrentUser", {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
