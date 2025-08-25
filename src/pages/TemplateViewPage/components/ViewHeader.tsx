@@ -23,7 +23,7 @@ const ViewHeader = ({ onClickDownload }: ViewHeaderProps) => {
         try {
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://3.35.147.68:8080/api/temp/templateDelete", {
+            const response = await fetch("https://pack-up-front-end-nu.vercel.app/api/temp/templateDelete", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,
