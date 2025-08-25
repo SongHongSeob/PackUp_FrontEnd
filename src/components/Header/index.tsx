@@ -256,7 +256,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch('http://3.35.147.68:8080/api/api/lgn/logout', {
+            const response = await fetch('http://3.35.147.68:8080/api/lgn/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
