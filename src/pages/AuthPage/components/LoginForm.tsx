@@ -35,7 +35,7 @@ const LoginForm = () => {
                 userPw: data.password
             };
     
-            const response = await fetch('http://3.35.147.68:8080/api/api/lgn/login', {
+            const response = await fetch('http://3.35.147.68:8080/api/lgn/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
