@@ -171,7 +171,7 @@ const convertDataToSteps = (
                     return;
                 }
 
-                const response = await fetch('http://3.35.147.68:8080/temp/getDetailData', {
+                const response = await fetch('http://3.35.147.68:8080/api/temp/getDetailData', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1898,7 +1898,7 @@ const convertDataToSteps = (
                 return;
             }
 
-            const response = await fetch('http://3.35.147.68:8080/temp/templateUpdate', {
+            const response = await fetch('http://3.35.147.68:8080/api/temp/templateUpdate', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -1998,7 +1998,7 @@ const convertDataToSteps = (
                 formData.append('imgFile', previewImageBlob, 'template-preview.jpg');
             }
 
-            const apiUrl = 'http://3.35.147.68:8080/temp/templateSave';
+            const apiUrl = 'http://3.35.147.68:8080/api/temp/templateSave';
             
             // 토큰 가져오기
             const token = localStorage.getItem('token') || '';
