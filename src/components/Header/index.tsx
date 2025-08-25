@@ -19,7 +19,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         if (!userId) return;
 
         try {
-            const res = await fetch('http://3.35.147.68:8080/notifications/readAll', {
+            const res = await fetch('http://3.35.147.68:8080/api/notifications/readAll', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -57,7 +57,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
             try {
                 const token = localStorage.getItem('token');
 
-                const response = await fetch("http://3.35.147.68:8080/api/user", {
+                const response = await fetch("http://3.35.147.68:8080/api/api/user", {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -106,7 +106,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
     useEffect(() => {
         if (!userId) return;
 
-        const url = `http://3.35.147.68:8080/notifications/subscribe?userId=${encodeURIComponent(userId)}`;
+        const url = `http://3.35.147.68:8080/api/notifications/subscribe?userId=${encodeURIComponent(userId)}`;
 
         const es = new EventSource(url);
 
@@ -162,7 +162,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         const fetchUnreadCount  = async () => {
             try {
                 const response = await fetch(
-                    `http://3.35.147.68:8080/notifications/unread_count?userId=${encodeURIComponent(userId)}`,
+                    `http://3.35.147.68:8080/api/notifications/unread_count?userId=${encodeURIComponent(userId)}`,
                     {
                     method: 'GET',
                     credentials: 'include',
@@ -218,7 +218,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         (async () => {
             try {
                 const res = await fetch(
-                    `http://3.35.147.68:8080/notifications/list?userId=${encodeURIComponent(userId)}`,
+                    `http://3.35.147.68:8080/api/notifications/list?userId=${encodeURIComponent(userId)}`,
                     { method: 'GET', credentials: 'include', signal: controller.signal }
                 );
                 if (!res.ok) throw new Error('알림 목록 불러오기 실패');
@@ -256,7 +256,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch('http://3.35.147.68:8080/api/lgn/logout', {
+            const response = await fetch('http://3.35.147.68:8080/api/api/lgn/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
