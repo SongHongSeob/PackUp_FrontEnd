@@ -105,7 +105,7 @@ const TemplateView = () => {
                 return (
                     <img
                         key={i}
-                        src="https://pack-up-front-end-nu.vercel.app/api/images/object/daily/Backpack.png"
+                        src="http://packup-api.kro.kr/images/object/daily/Backpack.png"
                         draggable={false} // 드래그 미리보기 방지
                         className="absolute"
                         style={{

@@ -19,7 +19,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         if (!userId) return;
 
         try {
-            const res = await fetch('https://pack-up-front-end-nu.vercel.app/api/notifications/readAll', {
+            const res = await fetch('http://packup-api.kro.kr/notifications/readAll', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
@@ -57,7 +57,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
             try {
                 const token = localStorage.getItem('token');
 
-                const response = await fetch("https://pack-up-front-end-nu.vercel.app/user/getCurrentUser", {
+                const response = await fetch("http://3.35.147.68:8080/api/user", {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${token}`,
@@ -106,7 +106,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
     useEffect(() => {
         if (!userId) return;
 
-        const url = `https://pack-up-front-end-nu.vercel.app/api/notifications/subscribe?userId=${encodeURIComponent(userId)}`;
+        const url = `http://3.35.147.68:8080/notifications/subscribe?userId=${encodeURIComponent(userId)}`;
 
         const es = new EventSource(url);
 
@@ -162,7 +162,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         const fetchUnreadCount  = async () => {
             try {
                 const response = await fetch(
-                    `https://pack-up-front-end-nu.vercel.app/api/notifications/unread_count?userId=${encodeURIComponent(userId)}`,
+                    `http://3.35.147.68:8080/notifications/unread_count?userId=${encodeURIComponent(userId)}`,
                     {
                     method: 'GET',
                     credentials: 'include',
@@ -218,7 +218,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         (async () => {
             try {
                 const res = await fetch(
-                    `https://pack-up-front-end-nu.vercel.app/api/notifications/list?userId=${encodeURIComponent(userId)}`,
+                    `http://3.35.147.68:8080/notifications/list?userId=${encodeURIComponent(userId)}`,
                     { method: 'GET', credentials: 'include', signal: controller.signal }
                 );
                 if (!res.ok) throw new Error('알림 목록 불러오기 실패');
@@ -256,7 +256,7 @@ const Header = ({ pageType = 'default' }: HeaderProps) => {
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch('https://pack-up-front-end-nu.vercel.app/api/lgn/logout', {
+            const response = await fetch('http://3.35.147.68:8080/api/lgn/logout', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
