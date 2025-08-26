@@ -71,7 +71,7 @@ const LoginForm = () => {
             
             if (confirmed) {
                 console.log(`${provider.toUpperCase()} 로그인 시작`);
-                window.location.href = `http://packup-api.kro.kr/oauth2/authorization/${provider}`;
+                window.location.href = `http://3.35.147.68:8080/oauth2/authorization/${provider}`;
             }
         } catch (error) {
             console.error(`${provider} 로그인 오류:`, error);
