@@ -95,7 +95,7 @@ const TemplateDetailPage = () => {
                 return;
             }
 
-            const response = await fetch('http://3.35.147.68:8080/temp/templateDelete', {
+            const response = await fetch('http://packup-api.kro.kr/temp/templateDelete', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -327,7 +327,7 @@ const TemplateDetailPage = () => {
             console.log('timeValue 타입과 값:', typeof timeValue, timeValue);
 
             const token = localStorage.getItem('token');
-            const response = await fetch('http://3.35.147.68:8080/temp/templateAlarmSave', {
+            const response = await fetch('http://packup-api.kro.kr/temp/templateAlarmSave', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -361,7 +361,7 @@ const TemplateDetailPage = () => {
                     return;
                 }
 
-                const response = await fetch('http://3.35.147.68:8080/temp/getDetailData', {
+                const response = await fetch('http://packup-api.kro.kr/temp/getDetailData', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
