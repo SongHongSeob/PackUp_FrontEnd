@@ -44,7 +44,7 @@ const TemplateCardSmall: React.FC<TemplateCardSmallProps> = ({
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://packup-api.kro.kr/temp/templateStatusUpdate', {
+            const response = await fetch('https://packup-api.kro.kr/temp/templateStatusUpdate', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -98,7 +98,7 @@ const TemplateCardSmall: React.FC<TemplateCardSmallProps> = ({
 
             console.log("템플릿명 변경 API 요청 데이터:", requestData);
 
-            const response = await fetch('http://3.35.147.68:8080/temp/templateStatusUpdate', {
+            const response = await fetch('https://packup-api.kro.kr/temp/templateStatusUpdate', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -144,7 +144,7 @@ const TemplateCardSmall: React.FC<TemplateCardSmallProps> = ({
 
             console.log("템플릿 삭제 API 요청 데이터:", requestData);
 
-            const response = await fetch('http://3.35.147.68:8080/temp/templateDelete', {
+            const response = await fetch('https://packup-api.kro.kr/temp/templateDelete', {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
