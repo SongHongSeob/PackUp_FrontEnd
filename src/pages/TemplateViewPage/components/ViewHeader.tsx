@@ -23,7 +23,7 @@ const ViewHeader = ({ onClickDownload }: ViewHeaderProps) => {
         try {
             const token = localStorage.getItem("token");
 
-            const response = await fetch("http://packup-api.kro.kr/temp/templateDelete", {
+            const response = await fetch("https://packup-api.kro.kr/temp/templateDelete", {
                 method: "POST",
                 headers: {
                     "Authorization": `Bearer ${token}`,

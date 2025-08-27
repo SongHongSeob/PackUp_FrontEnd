@@ -62,7 +62,7 @@ const SignupForm = () => {
                 mktAgree: agreements.marketing
             };
 
-            const response = await fetch('http://packup-api.kro.kr/register/userRegister', {
+            const response = await fetch('https://packup-api.kro.kr/register/userRegister', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

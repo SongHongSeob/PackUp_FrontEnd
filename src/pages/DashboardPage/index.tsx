@@ -199,7 +199,7 @@ const DashboardPage = () => {
             };
             if (categoryValue) requestBody.cateNo = categoryValue;
 
-            const response = await fetch("http://packup-api.kro.kr/temp/getUserTemplateDataList", {
+            const response = await fetch("https://packup-api.kro.kr/temp/getUserTemplateDataList", {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
